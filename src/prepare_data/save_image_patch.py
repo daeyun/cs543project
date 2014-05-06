@@ -1,5 +1,5 @@
 import os
-from helpers.io_helpers import path_to_filename, save_image
+from helpers.io_helpers import path_to_filename, save_image, make_sure_dir_exists
 
 
 def save_image_patch(image_patch, patch_info):
@@ -25,6 +25,8 @@ def save_image_patch(image_patch, patch_info):
         h=patch_info['patch']['h'],
         orientation=patch_info['source']['orientation']
     )
-    out_path = os.path.join(patch_info['out dir'], out_name)
+    out_dir = patch_info['out dir']
+    make_sure_dir_exists(out_dir)
+    out_path = os.path.join(out_dir, out_name)
     print out_path
     save_image(out_path, image_patch)

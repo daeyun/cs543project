@@ -42,7 +42,6 @@ def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callb
             ROIs = get_ROIs(image, adjusted_rects)
 
             out_dir_label = os.path.join(out_dir, label)
-            make_sure_dir_exists(out_dir)
 
             for index, img_patch in enumerate(ROIs):
                 x, y, w, h = adjusted_rects[index]

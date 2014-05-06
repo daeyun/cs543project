@@ -76,9 +76,9 @@ def path_to_filename(path):
     return path.split('/')[-1]
 
 
-def save_image(image, out_path):
+def save_image(out_path, image):
     """
     @type image: ndarray
     @type out_path: string
     """
-    cv2.imwrite(image, out_path)
+    cv2.imwrite(out_path, image)
