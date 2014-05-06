@@ -7,3 +7,5 @@ paths:
     output:
         image patch:
             /Users/daeyun/class/cs543/out/image_patch/
+        negative sample:
+            /Users/daeyun/class/cs543/out/negative_sample/
