@@ -3,6 +3,7 @@ import os
 import errno
 import re
 import sys
+import cv2
 
 
 def make_sure_dir_exists(path):
@@ -74,3 +75,10 @@ def path_to_filename(path):
     """
     return path.split('/')[-1]
 
+
+def save_image(image, out_path):
+    """
+    @type image: ndarray
+    @type out_path: string
+    """
+    cv2.imwrite(image, out_path)
