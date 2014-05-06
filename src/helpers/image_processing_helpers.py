@@ -59,7 +59,35 @@ def get_ROIs(image, rects):
     results = []
     for rect in rects:
         x, y, w, h = rect
-        roi = image[y:y+h+1, x:x+w+1]
+        roi = image[y:y + h + 1, x:x + w + 1]
         results.append(roi)
 
     return results
+
+
+def find_area(array):
+    """
+    @param array: array of (x, y)
+    @type array: list
+    @rtype: float
+    Reference: http://www.arachnoid.com/area_irregular_polygon/index.html
+    """
+    a = 0
+    ox, oy = array[0]
+    for x, y in array[1:]:
+        a += (x * oy - y * ox)
+        ox, oy = x, y
+    return a / 2
+
+
+def rotate_rects(rects, center, angle):
+    """
+    @param rects: array of (x, y, w, h)
+    @returns: array of [(x1, y1), (x2, y2), (x3, y3), (x4, y4))]
+    @type rects: list
+    @type center: tuple
+    @type angle: float
+    @rtype: list
+    """
+    rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
+    # TODO
