@@ -26,4 +26,5 @@ def save_image_patch(image_patch, patch_info):
         orientation=patch_info['source']['orientation']
     )
     out_path = os.path.join(patch_info['out dir'], out_name)
+    print out_path
     save_image(out_path, image_patch)

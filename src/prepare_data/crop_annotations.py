@@ -41,7 +41,7 @@ def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callb
             # Image patches annotated with the current label
             ROIs = get_ROIs(image, adjusted_rects)
 
-            out_dir = os.path.join(out_dir, label)
+            out_dir_label = os.path.join(out_dir, label)
             make_sure_dir_exists(out_dir)
 
             for index, img_patch in enumerate(ROIs):
@@ -58,7 +58,7 @@ def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callb
                         'orientation': orientation,
                         'path': image_path,
                     },
-                    'out dir': out_dir
+                    'out dir': out_dir_label
                 }
 
                 callback(img_patch, patch_info)
