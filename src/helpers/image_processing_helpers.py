@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from numpy.ma import empty_like
 
 
 def rotate_image(image, angle=90):
@@ -67,7 +68,9 @@ def get_ROIs(image, rects):
 
 def find_area(array):
     """
-    @param array: array of (x, y)
+    >>> find_area([(0, 0), (10, 0), (10, 10), (0, 10),  (0, 0)])
+    100
+
     @type array: list
     @rtype: float
     Reference: http://www.arachnoid.com/area_irregular_polygon/index.html
@@ -77,7 +80,40 @@ def find_area(array):
     for x, y in array[1:]:
         a += (x * oy - y * ox)
         ox, oy = x, y
-    return a / 2
+    return abs(a) / 2
+
+
+def line_intersection(line1, line2):
+    """
+    >>> x, y = line_intersection([(0,0),(10,10)], [(10,0),(0,10)])
+    >>> round(x, 2), round(y, 2)
+    (5.0, 5.0)
+
+    >>> str(line_intersection([(10,10),(10,11)], [(-10,-10),(-19,-10)]))
+    'None'
+    """
+    a = np.linalg.det(line1)
+    b = np.linalg.det(line2)
+    c = line1[0][0] - line1[1][0]
+    d = line2[0][0] - line2[1][0]
+    e = line1[0][1] - line1[1][1]
+    f = line2[0][1] - line2[1][1]
+    g = np.linalg.det([[a, c],[b, d]])
+    h = np.linalg.det([[c, e],[d, f]])
+    i = np.linalg.det([[a, e],[b, f]])
+
+    x = g/h
+    y = i/h
+    lx = [line1[0][0], line1[1][0]]
+    ly = [line1[0][1], line1[1][1]]
+    lx.sort()
+    ly.sort()
+
+    if lx[0] <= x <= lx[1] and ly[0] <= y <= ly[1]:
+        return x, y
+
+    return None
+
 
 
 def rotate_rects(rects, center, angle):
@@ -91,3 +127,9 @@ def rotate_rects(rects, center, angle):
     """
     rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
     # TODO
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
