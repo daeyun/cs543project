@@ -1,0 +1,9 @@
+paths:
+    input:
+        image:
+            /Users/daeyun/class/cs543/img/
+        annotation:
+            /Users/daeyun/class/cs543/annotation/
+    output:
+        image patch:
+            /Users/daeyun/class/cs543/out/image_patch/
