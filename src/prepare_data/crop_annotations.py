@@ -5,7 +5,7 @@ import cv2
 from helpers.image_processing_helpers import rotate_image, get_ROIs
 
 
-def crop_annotations(input_image_dir, input_annotation_dir, out_dir, callback):
+def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callback):
     """
     @type input_image_dir: string
     @type input_annotation_dir: string
