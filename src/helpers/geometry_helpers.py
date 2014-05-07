@@ -1,10 +1,13 @@
 import cv2
 import numpy as np
+import matplotlib.path as mpl_path
+
+__author__ = 'Daeyun Shin'
 
 
-def find_area(array):
+def find_polygon_area(array):
     """
-    >>> find_area([(0, 0), (10, 0), (10, 10), (0, 10),  (0, 0)])
+    >>> find_polygon_area([(0, 0), (10, 0), (10, 10), (0, 10),  (0, 0)])
     100
 
     @type array: list
@@ -62,6 +65,10 @@ def line_segment_intersection(line1, line2):
     if p is not None and is_on_line1 and is_on_line2:
         return p
     return None
+
+
+def is_point_in_polygon(poly, point):
+    pass
 
 
 def get_polygon_overlapping_area(poly1, poly2):
