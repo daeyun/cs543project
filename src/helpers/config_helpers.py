@@ -2,6 +2,8 @@ import json
 import yaml
 from io_helpers import search_files_by_extension
 
+__author__ = 'Daeyun Shin'
+
 
 def parse_config(config_path):
     """

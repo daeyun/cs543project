@@ -1,6 +1,8 @@
 import os
 from helpers.io_helpers import path_to_filename, save_image, make_sure_dir_exists
 
+__author__ = 'Daeyun Shin'
+
 
 def save_image_patch(image_patch, patch_info):
     """

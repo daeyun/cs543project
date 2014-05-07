@@ -4,6 +4,8 @@ from helpers.io_helpers import search_files_by_extension, path_to_filename, make
 import cv2
 from helpers.image_processing_helpers import rotate_image, get_ROIs
 
+__author__ = 'Daeyun Shin'
+
 
 def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callback):
     """

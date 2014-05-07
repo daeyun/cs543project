@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+__author__ = 'Daeyun Shin'
+
 
 def rotate_image(image, angle=90):
     """
