@@ -111,6 +111,7 @@ def is_point_on_line_segment(line, point, epsilon=0.05):
 
 def check_polygon_equality(poly1, poly2, places=4):
     """
+    Assume the polygon does not contain duplicate points.
     @type poly1: matrix
     @type poly2: matrix
     @type places: int
