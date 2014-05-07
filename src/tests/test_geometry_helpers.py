@@ -1,42 +1,80 @@
 import random
 from unittest import TestCase
 import cv2
-from helpers.geometry_helpers import find_area, line_intersection, is_point_on_line_segment
 import numpy as np
+from src.helpers.geometry_helpers import line_intersection, is_point_on_line_segment, find_area, \
+    line_segment_intersection
+from tests.helpers.assertion_helpers import assertTupleAlmostEqual
 
 
 class TestLineIntersection(TestCase):
-    def test_line_intersection_cross(self):
+    def test_line_intersection_perpendicular_bottom(self):
+        line1 = [(0, 0), (10, 0)]
+        line2 = [(5, 10), (5, 2)]
+        p = line_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 0))
+
+    def test_line_intersection_perpendicular_top(self):
+        line1 = [(0, 0), (10, 0)]
+        line2 = [(5, -10), (5, -1)]
+        p = line_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 0))
+
+    def test_line_intersection_perpendicular_top_different_order(self):
+        line1 = [(5, -10), (5, -1)]
+        line2 = [(10, 0), (0, 0)]
+        p = line_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 0))
+
+    def test_line_intersection_perpendicular_crossing(self):
+        line1 = [(0, 0), (10, 0)]
+        line2 = [(5, -10), (5, 2)]
+        p = line_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 0))
+
+    def test_line_intersection_diagonal(self):
         line1 = [(0, 0), (10, 10)]
-        line2 = [(10, 0), (0, 10)]
-        x, y = line_intersection(line1, line2)
-        self.assertAlmostEqual(x, 5)
-        self.assertAlmostEqual(y, 5)
+        line2 = [(0, 10), (2, 8)]
+        p = line_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 5))
 
-    def test_line_intersection_parallel(self):
-        line1 = [(0, 0), (10, 0)]
-        line2 = [(5, 5), (5, 0)]
-        result = line_intersection(line1, line2)
-        self.assertEqual(result, None)
 
-    def test_line_intersection_not_intersecting(self):
-        line1 = [(0, 0), (10, 0)]
-        line2 = [(5, 5), (7, 1)]
-        result = line_intersection(line1, line2)
-        self.assertEqual(result, None)
+class TestLineSegmentIntersection(TestCase):
+    def test_not_crossing(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(0, 10), (2, 8)]
+        p = line_segment_intersection(line1, line2)
+        self.assertEqual(p, None)
 
-    def test_line_intersection_aligned_not_intersecting(self):
-        line1 = [(0, 0), (10, 0)]
-        line2 = [(11, 0), (15, 0)]
-        result = line_intersection(line1, line2)
-        self.assertEqual(result, None)
+    def test_connecting(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(0, 10), (5, 5)]
+        p = line_segment_intersection(line1, line2)
+        self.assertEqual(p, (5, 5))
 
-    def test_line_intersection_aligned_connecting(self):
-        line1 = [(0, 0), (11, 0)]
-        line2 = [(10, -1), (10, 10)]
-        x, y = line_intersection(line1, line2)
-        self.assertAlmostEqual(x, 10)
-        self.assertAlmostEqual(y, 0)
+    def test_crossing(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(0, 10), (10, 0)]
+        p = line_segment_intersection(line1, line2)
+        self.assertEqual(p, (5, 5))
+
+    def test_crossing(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(0, 10), (10, 0)]
+        p = line_segment_intersection(line1, line2)
+        self.assertTupleAlmostEqual(p, (5, 5))
+
+    def test_perpendicular(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(5, 5), (5, 2)]
+        p = line_segment_intersection(line1, line2)
+        self.assertEqual(p, None)
+
+    def test_perpendicular_crossing(self):
+        line1 = [(0, 0), (10, 10)]
+        line2 = [(5, 5), (5, -1)]
+        p = line_segment_intersection(line1, line2)
+        assertTupleAlmostEqual(p, (5, 5))
 
 
 class TestIsPointOnLineSegment(TestCase):

@@ -14,6 +14,11 @@ def assertTupleAlmostEqual(t1, t2, places=7):
     Traceback (most recent call last):
         ...
     AssertionError: (0.1, 0.1) != (0.10001, 0) within 2 places
+    >>> assertTupleAlmostEqual(None, None, 2)
+    >>> assertTupleAlmostEqual(None, (None, 0), 2)
+    Traceback (most recent call last):
+        ...
+    AssertionError: None != (None, 0)
     """
 
     if t1 is None and t2 is None:
