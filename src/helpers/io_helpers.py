@@ -35,7 +35,7 @@ def indented_print(msg, indentation='\t'):
     msg_string = str(msg)
     lines = msg_string.split('\n')
     for line in lines:
-        print '\t' + line
+        print indentation + line
 
 
 def pretty_print_exception(msg, e):
