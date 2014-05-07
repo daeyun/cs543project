@@ -18,7 +18,7 @@ class TestFindOverlappingPolygon(TestCase):
         poly2 = transpose(homogeneous_trans_mat[0:2, :])
 
         intersection = matrix([(5, 5), (5, 10), (10, 10), (10, 5), (5, 5), ])
-        new_poly = find_overlapping_polygon(poly1, matrix(poly2))
+        new_poly = find_overlapping_polygon(poly1, poly2)
         self.assertNotEqual(new_poly, None)
         self.assertTupleEqual(new_poly.shape, (5, 2))
         result = check_polygon_equality(new_poly, intersection)
@@ -37,7 +37,7 @@ class TestFindOverlappingPolygon(TestCase):
                 homogeneous_trans_mat = dot(trans_mat, vstack((transpose(poly1), ones((1, poly1.shape[0])))))
                 poly2 = transpose(homogeneous_trans_mat[0:2, :])
 
-                new_poly = find_overlapping_polygon(poly1, matrix(poly2))
+                new_poly = find_overlapping_polygon(poly1, poly2)
                 self.assertEqual(new_poly, None)
 
     def test_two_non_overlapping_squares(self):
@@ -52,7 +52,7 @@ class TestFindOverlappingPolygon(TestCase):
             homogeneous_trans_mat = dot(trans_mat, vstack((transpose(poly1), ones((1, poly1.shape[0])))))
             poly2 = transpose(homogeneous_trans_mat[0:2, :])
 
-            new_poly = find_overlapping_polygon(poly1, matrix(poly2))
+            new_poly = find_overlapping_polygon(poly1, poly2)
             area = find_polygon_area(new_poly)
             self.assertAlmostEqual(area, 2 * 10)
 
@@ -72,7 +72,7 @@ class TestFindOverlappingPolygon(TestCase):
 
         poly2 = transpose(dot(rot_mat, homogeneous_poly1))
 
-        new_poly = find_overlapping_polygon(poly1, matrix(poly2))
+        new_poly = find_overlapping_polygon(poly1, poly2)
 
         ## plot the result
         # import matplotlib.pyplot as plt

@@ -94,31 +94,37 @@ def is_point_in_polygon(poly, point):
 def find_overlapping_polygon(poly1, poly2):
     """
     Input values are n by 2 matrices containing n points
-    @type poly1: matrix
-    @type poly2: matrix
-    @rtype: matrix
+    @type poly1: ndarray
+    @type poly2: ndarray
+    @rtype: ndarray
     """
     assert ((poly1[0] == poly1[-1]).all(), "poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
     assert ((poly2[0] == poly2[-1]).all(), "poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
 
     points = []
 
+    if type(poly1) == np.matrix:
+        poly1 = poly1.A
+
+    if type(poly2) == np.matrix:
+        poly2 = poly2.A
+
     # find intersection points between two polygon paths
     for i in range(len(poly1)-1):
-        line_segment1 = map(tuple, poly1[i:i + 2].A)
+        line_segment1 = map(tuple, poly1[i:i + 2])
         for j in range(len(poly2)-1):
-            line_segment2 = map(tuple, poly2[j:j + 2].A)
+            line_segment2 = map(tuple, poly2[j:j + 2])
             p = line_segment_intersection(line_segment1, line_segment2)
             if p is not None:
                 points.append(p)  # found an intersection point
 
     # find vertices contained in another polygon
-    for p in poly1[:-1].A:
+    for p in poly1[:-1]:
         p = tuple(p)
         if is_point_in_polygon(poly2, p):
             points.append(p)
 
-    for p in poly2[:-1].A:
+    for p in poly2[:-1]:
         p = tuple(p)
         if is_point_in_polygon(poly1, p):
             points.append(p)
@@ -134,18 +140,20 @@ def find_overlapping_polygon(poly1, poly2):
     points += [points[0]]
 
     if find_polygon_area(points) > 0:
-        points = np.matrix(points)
-        return points
+        return np.array(points)
     return None
 
 
 def find_overlapping_polygon_area(poly1, poly2):
     """
-    @type poly1: list
-    @type poly2: list
+    @type poly1: ndarray
+    @type poly2: ndarray
     @rtype: float
     """
-    pass
+    poly = find_overlapping_polygon(poly1, poly2)
+    if poly is None:
+        return None
+    return find_polygon_area(poly)
 
 
 def is_point_on_line_segment(line, point, epsilon=0.05):
