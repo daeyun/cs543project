@@ -81,6 +81,7 @@ def line_segment_intersection(line1, line2):
 def is_point_in_polygon(poly, point):
     """
     accepted types of poly: matrix, ndarray, list of tuples
+    @type point: tuple
     """
     if type(poly) is np.matrix:
         poly = poly.A
@@ -181,8 +182,8 @@ def is_point_on_line_segment(line, point, epsilon=0.05):
 def check_polygon_equality(poly1, poly2, places=4):
     """
     Assume the polygon does not contain duplicate points.
-    @type poly1: matrix
-    @type poly2: matrix
+    @type poly1: ndarray
+    @type poly2: ndarray
     @type places: int
     @rtype: bool
     """
@@ -204,12 +205,10 @@ def check_polygon_equality(poly1, poly2, places=4):
 
 def rotate_rects(rects, center, angle):
     """
-    @param rects: array of (x, y, w, h)
-    @returns: array of [(x1, y1), (x2, y2), (x3, y3), (x4, y4))]
-    @type rects: list
+    @type rects: ndarray
     @type center: tuple
     @type angle: float
-    @rtype: list
+    @rtype: ndarray
     """
     # rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
     pass
