@@ -113,9 +113,9 @@ def find_overlapping_polygon(poly1, poly2):
         poly2 = poly2.A
 
     # find intersection points between two polygon paths
-    for i in range(len(poly1)-1):
+    for i in range(len(poly1) - 1):
         line_segment1 = map(tuple, poly1[i:i + 2])
-        for j in range(len(poly2)-1):
+        for j in range(len(poly2) - 1):
             line_segment2 = map(tuple, poly2[j:j + 2])
             p = line_segment_intersection(line_segment1, line_segment2)
             if p is not None:
@@ -218,9 +218,30 @@ def rotate_rects(rects, center, angle):
     n, p, d = rects.shape
 
     # 2 by n*5 array
-    points = vstack((rects.T.reshape(d, n*p, order='F'), ones((1, n*p))))
+    points = vstack((rects.T.reshape(d, n * p, order='F'), ones((1, n * p))))
 
     rotated_points = np.dot(rot_mat, points)
     rotated_rects = rotated_points.T.reshape(n, p, d)
 
     return rotated_rects
+
+
+def rect_to_polygon(rects):
+    """
+    Convert rectangles to polygon format. Each rectangle will be represented as five (x, y) vertices.
+    @param rects: n by 4 array of n rectangles where each row is (x, y, w, h)
+    @returns: n by 5 by 2 array of n polygons
+    @type rects: ndarray
+    @rtype: ndarray
+    """
+    # tile the x, y points
+    rects = np.array([rects])
+    poly = np.tile(np.transpose(rects[:, :, 0:2], (1, 0, 2)), (1, 5, 1))
+
+    # width and height
+    wh = np.transpose(rects[:, :, 2:4], (1, 0, 2)).reshape(poly.shape[0], 2)
+    poly[:, 1, 0] += wh[:, 0]
+    poly[:, 2, :] += wh[:, :]
+    poly[:, 3, 1] += wh[:, 1]
+
+    return poly
