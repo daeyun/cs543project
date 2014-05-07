@@ -28,10 +28,10 @@ class TestLineSegmentIntersection(TestCase):
         line1 = [(0, 0), (10, 10)]
         line2 = [(0, 10), (10, 0)]
         p = line_segment_intersection(line1, line2)
-        self.assertTupleAlmostEqual(p, (5, 5))
+        assertTupleAlmostEqual(p, (5, 5))
 
     def test_perpendicular(self):
-        line1 = [(0, 0), (10, 10)]
+        line1 = [(0, 0), (10, 0)]
         line2 = [(5, 5), (5, 2)]
         p = line_segment_intersection(line1, line2)
         self.assertEqual(p, None)
