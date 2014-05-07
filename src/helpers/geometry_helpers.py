@@ -3,6 +3,7 @@ import cv2
 import math
 import numpy as np
 import matplotlib.path as mpl_path
+from numpy.ma import vstack, ones
 
 __author__ = 'Daeyun Shin'
 
@@ -205,11 +206,22 @@ def check_polygon_equality(poly1, poly2, places=4):
 
 def rotate_rects(rects, center, angle):
     """
+    @param rects: n by 5 by 2 array of n rectangles.
+        Each rectangle consists of five (x, y) coordinates. Any polygon would work, in fact.
     @type rects: ndarray
     @type center: tuple
     @type angle: float
     @rtype: ndarray
     """
-    # rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
-    pass
-    # TODO
+    # 2 by 3 rotation matrix
+    rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+    n, p, d = rects.shape
+
+    # 2 by n*5 array
+    points = vstack((rects.T.reshape(d, n*p, order='F'), ones((1, n*p))))
+
+    rotated_points = np.dot(rot_mat, points)
+    rotated_rects = rotated_points.T.reshape(n, p, d)
+
+    return rotated_rects
