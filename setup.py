@@ -3,6 +3,7 @@ from distutils.core import setup
 install_requires = [
     'pyyaml',
     'numpy',
+    'matplotlib',
 ]
 
 setup(
