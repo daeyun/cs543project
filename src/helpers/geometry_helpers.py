@@ -16,6 +16,11 @@ def find_polygon_area(array):
     @rtype: float
     Reference: http://www.arachnoid.com/area_irregular_polygon/index.html
     """
+    if type(array) is np.matrix:
+        array = map(tuple, array.A)
+    elif type(array) is np.ndarray:
+        array = map(tuple, array)
+
     a = 0
     ox, oy = array[0]
     for x, y in array[1:]:
