@@ -68,7 +68,8 @@ def line_segment_intersection(line1, line2):
 
 
 def is_point_in_polygon(poly, point):
-    pass
+    polygon = mpl_path.Path(np.array(poly))
+    return polygon.contains_point(point)
 
 
 def get_polygon_overlapping_area(poly1, poly2):
