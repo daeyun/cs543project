@@ -1,3 +1,4 @@
+import hashlib
 import cv2
 import numpy as np
 import matplotlib.path as mpl_path
@@ -106,6 +107,27 @@ def is_point_on_line_segment(line, point, epsilon=0.05):
     is_y_in_range = y_points[0] <= point[1] <= y_points[1]
 
     return are_aligned and is_x_in_range and is_y_in_range
+
+
+def check_polygon_equality(poly1, poly2, places=4):
+    """
+    @type poly1: matrix
+    @type poly2: matrix
+    @type places: int
+    @rtype: bool
+    """
+    assert((poly1[0] == poly1[-1]).all(), "poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
+    assert((poly2[0] == poly2[-1]).all(), "poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
+
+    poly1_rounded = np.copy(poly1).round(places)[:-1]
+    poly2_rounded = np.copy(poly2).round(places)[:-1]
+    val, min_idx1 = min((int(hashlib.md5(val).hexdigest(), 16), idx) for (idx, val) in enumerate(poly1_rounded))
+    val2, min_idx2 = min((int(hashlib.md5(val).hexdigest(), 16), idx) for (idx, val) in enumerate(poly2_rounded))
+    rotated1 = np.roll(poly1_rounded, -min_idx1, 0)
+    rotated2 = np.roll(poly2_rounded, -min_idx2, 0)
+    if np.array_equal(rotated1, rotated2):
+        return True
+    return np.array_equal(rotated1, np.roll(rotated2[::-1, :], 1, 0))
 
 
 def rotate_rects(rects, center, angle):
