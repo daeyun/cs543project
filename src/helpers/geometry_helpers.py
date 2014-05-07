@@ -72,7 +72,21 @@ def is_point_in_polygon(poly, point):
     return polygon.contains_point(point)
 
 
-def get_polygon_overlapping_area(poly1, poly2):
+def find_overlapping_polygon(poly1, poly2):
+    """
+    @type poly1: list
+    @type poly2: list
+    @rtype: list
+    """
+    pass
+
+
+def find_overlapping_polygon_area(poly1, poly2):
+    """
+    @type poly1: list
+    @type poly2: list
+    @rtype: float
+    """
     pass
 
 
@@ -103,5 +117,6 @@ def rotate_rects(rects, center, angle):
     @type angle: float
     @rtype: list
     """
-    rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
+    # rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
+    pass
     # TODO
