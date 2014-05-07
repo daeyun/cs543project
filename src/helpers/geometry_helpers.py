@@ -98,8 +98,10 @@ def find_overlapping_polygon(poly1, poly2):
     @type poly2: ndarray
     @rtype: ndarray
     """
-    assert ((poly1[0] == poly1[-1]).all(), "poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
-    assert ((poly2[0] == poly2[-1]).all(), "poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
+    if not np.array_equal(poly1[0], poly1[-1]):
+        raise Exception("poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
+    if not np.array_equal(poly2[0], poly2[-1]):
+        raise Exception("poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
 
     points = []
 
@@ -134,6 +136,8 @@ def find_overlapping_polygon(poly1, poly2):
     #   ordering-shuffled-points-that-can-be-joined-to-form-a-polygon-in-python
     # compute centroid
     cent = (sum([p[0] for p in points]) / len(points), sum([p[1] for p in points]) / len(points))
+    # remove duplicates
+    points = list(set(points))
     # sort by polar angle
     points.sort(key=lambda p: math.atan2(p[1] - cent[1], p[0] - cent[0]))
     # enclose the polygon
@@ -182,8 +186,10 @@ def check_polygon_equality(poly1, poly2, places=4):
     @type places: int
     @rtype: bool
     """
-    assert ((poly1[0] == poly1[-1]).all(), "poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
-    assert ((poly2[0] == poly2[-1]).all(), "poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
+    if not np.array_equal(poly1[0], poly1[-1]):
+        raise Exception("poly1 is not enclosed properly. poly1[0] must equal poly1[-1]")
+    if not np.array_equal(poly2[0], poly2[-1]):
+        raise Exception("poly2 is not enclosed properly. poly2[0] must equal poly2[-1]")
 
     poly1_rounded = np.copy(poly1).round(places)[:-1]
     poly2_rounded = np.copy(poly2).round(places)[:-1]
