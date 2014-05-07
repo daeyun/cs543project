@@ -1,6 +1,5 @@
 from unittest import TestCase
 from numpy import array
-from numpy.matrixlib import matrix
 from helpers.geometry_helpers import find_overlapping_polygon_area
 
 __author__ = 'Daeyun Shin'

@@ -6,7 +6,7 @@ __author__ = 'Daeyun Shin'
 
 def rotate_image(image, angle=90):
     """
-    Rotate the given image without cropping
+    Rotate a given image without cropping
     @type image: ndarray
     @type angle: int
     """
@@ -56,7 +56,6 @@ def get_ROIs(image, rects):
     """
     @type image: ndarray
     @type rects: list
-    @type orientation: int
     """
     results = []
     for rect in rects:

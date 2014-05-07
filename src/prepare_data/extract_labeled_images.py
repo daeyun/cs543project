@@ -1,8 +1,8 @@
 import os
 from helpers.config_helpers import parse_annotations
-from helpers.io_helpers import search_files_by_extension, path_to_filename, make_sure_dir_exists
+from helpers.io_helpers import search_files_by_extension, path_to_filename
 import cv2
-from helpers.image_processing_helpers import rotate_image, get_ROIs
+from helpers.image_operation_helpers import rotate_image, get_ROIs
 
 __author__ = 'Daeyun Shin'
 

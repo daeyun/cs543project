@@ -4,7 +4,7 @@ from numpy import transpose, vstack, ones
 from numpy.ma import dot
 from numpy.matrixlib import matrix
 from helpers.geometry_helpers import find_overlapping_polygon, check_polygon_equality, find_polygon_area
-from helpers.image_processing_helpers import getTranslationMatrix2d
+from helpers.image_operation_helpers import getTranslationMatrix2d
 
 __author__ = 'Daeyun Shin'
 
