@@ -1,4 +1,3 @@
-import random
 from unittest import TestCase
 import cv2
 import numpy as np
