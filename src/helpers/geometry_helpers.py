@@ -132,6 +132,9 @@ def find_overlapping_polygon(poly1, poly2):
         if is_point_in_polygon(poly1, p):
             points.append(p)
 
+    if len(points) == 0:
+        return None
+
     # reconstruct the polygon from unordered points
     # Reference: http://stackoverflow.com/questions/10846431/
     #   ordering-shuffled-points-that-can-be-joined-to-form-a-polygon-in-python

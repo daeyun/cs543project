@@ -1,6 +1,6 @@
 from unittest import TestCase
-from helpers.geometry_helpers import line_segment_intersection
-from tests.helpers.assertion_helpers import assertTupleAlmostEqual
+from testing_helpers.geometry_helpers import line_segment_intersection
+from tests.testing_helpers.assertion_helpers import assertTupleAlmostEqual
 
 __author__ = 'Daeyun Shin'
 

@@ -1,11 +1,24 @@
 paths:
     input:
-        image:
-            /Users/daeyun/class/cs543/img/
-        annotation:
-            /Users/daeyun/class/cs543/annotation/
+        initial:
+            image:
+                /Users/daeyun/class/cs543/img/
+            annotation:
+                /Users/daeyun/class/cs543/annotation/
     output:
-        image patch:
-            /Users/daeyun/class/cs543/out/image_patch/
-        negative sample:
-            /Users/daeyun/class/cs543/out/negative_sample/
+        data prep:
+            image:
+                positive:
+                    /Users/daeyun/class/cs543/out/image_patch/
+                negative:
+                    /Users/daeyun/class/cs543/out/negative_sample/
+            annotation:
+                positive:
+                    /Users/daeyun/class/cs543/out/annotation/
+                negative:
+                    /Users/daeyun/class/cs543/out/negative_sample/
+            square image:
+                positive:
+                    /Users/daeyun/class/cs543/out/sq_image_patch/
+                negative:
+                    /Volumes/Daeyun HDD/dataset/cs543/sq_negatives

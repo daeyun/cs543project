@@ -1,6 +1,6 @@
 from unittest import TestCase
 from numpy import vstack
-from helpers.geometry_helpers import check_polygon_equality
+from testing_helpers.geometry_helpers import check_polygon_equality
 
 __author__ = 'Daeyun Shin'
 

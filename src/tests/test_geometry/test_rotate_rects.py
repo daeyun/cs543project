@@ -1,6 +1,6 @@
 from unittest import TestCase
 from numpy import array
-from helpers.geometry_helpers import rotate_rects
+from testing_helpers.geometry_helpers import rotate_rects
 from numpy import testing
 
 __author__ = 'Daeyun Shin'

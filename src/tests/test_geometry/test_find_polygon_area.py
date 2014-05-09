@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../kv_storage/')
-from helpers.geometry_helpers import find_polygon_area
+from testing_helpers.geometry_helpers import find_polygon_area
 
 __author__ = 'Daeyun Shin'
 

@@ -1,8 +1,10 @@
 import argparse
-from helpers.config_helpers import *
-from helpers.io_helpers import *
+
+from helpers.config_helpers import parse_config
+from helpers.io_helpers import pretty_print_exception, get_absolute_path
 from prepare_data.extract_labeled_images import extract_labeled_images
 from prepare_data.extract_noise import extract_noise
+from prepare_data.extract_square_images import extract_square_images
 from prepare_data.save_image_patch import save_image_patch
 
 __author__ = 'Daeyun Shin'
@@ -23,10 +25,10 @@ def main():
         pretty_print_exception("Could not load {}".format(config_path), e)
         return
 
-    if args.task == 'extract-images':
-        input_image_dir = config['paths']['input']['image']
-        input_annotation_dir = config['paths']['input']['annotation']
-        out_dir = config['paths']['output']['image patch']
+    if args.task == 'extract-labeled-images':
+        input_image_dir = config['paths']['input']['initial']['image']
+        input_annotation_dir = config['paths']['input']['initial']['annotation']
+        out_dir = config['paths']['output']['data prep']['image']['positive']
 
         print """Extracting labeled image patches
         Image directory: {}
@@ -35,13 +37,19 @@ def main():
 
         extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, save_image_patch)
 
+    elif args.task == 'extract-square-images':
+        input_image_dir = config['paths']['input']['initial']['image']
+        input_annotation_dir = config['paths']['input']['initial']['annotation']
+        out_dir = config['paths']['output']['data prep']['square image']['positive']
+
+        extract_square_images(input_image_dir, input_annotation_dir, out_dir, callback=save_image_patch, max_side=256)
+
     elif args.task == 'generate-negative-samples':
-        input_image_dir = config['paths']['input']['image']
-        input_annotation_dir = config['paths']['input']['annotation']
-        out_dir = config['paths']['output']['negative sample']
+        input_image_dir = config['paths']['input']['initial']['image']
+        input_annotation_dir = config['paths']['input']['initial']['annotation']
+        out_dir = config['paths']['output']['data prep']['square image']['negative']
 
         extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch)
-
 
 if __name__ == '__main__':
     main()

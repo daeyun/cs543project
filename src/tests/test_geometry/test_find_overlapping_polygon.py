@@ -3,8 +3,8 @@ from cv2 import getRotationMatrix2D
 from numpy import transpose, vstack, ones
 from numpy.ma import dot
 from numpy.matrixlib import matrix
-from helpers.geometry_helpers import find_overlapping_polygon, check_polygon_equality, find_polygon_area
-from helpers.image_operation_helpers import getTranslationMatrix2d
+from testing_helpers.geometry_helpers import find_overlapping_polygon, check_polygon_equality, find_polygon_area
+from testing_helpers.image_operation_helpers import getTranslationMatrix2d
 
 __author__ = 'Daeyun Shin'
 

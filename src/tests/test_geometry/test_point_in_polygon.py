@@ -1,5 +1,5 @@
 from unittest import TestCase
-from helpers.geometry_helpers import is_point_in_polygon
+from testing_helpers.geometry_helpers import is_point_in_polygon
 
 __author__ = 'Daeyun Shin'
 

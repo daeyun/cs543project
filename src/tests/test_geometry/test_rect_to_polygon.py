@@ -1,7 +1,7 @@
 from unittest import TestCase
 from numpy import testing
 from numpy.ma import array
-from helpers.geometry_helpers import rect_to_polygon
+from testing_helpers.geometry_helpers import rect_to_polygon
 
 __author__ = 'Daeyun Shin'
 
