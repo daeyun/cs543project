@@ -10,7 +10,7 @@ from helpers.plotting_helpers import plot_rects_on_image
 __author__ = 'Daeyun Shin'
 
 
-def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_width=128):
+def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_width=96):
     """
     @type input_image_dir: string
     @type input_annotation_dir: string
@@ -23,11 +23,10 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
     for image_path in image_paths:
         image = cv2.imread(image_path)
         image_filename = path_to_filename(image_path)
-        annotation = annotations[image_filename]
-        image_info = annotation['image info']
 
         try:
             annotation = annotations[image_filename]
+            image_info = annotation['image info']
         except:
             print "annotation is not available for {}".format(image_filename)
             continue
@@ -37,7 +36,7 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
             image = cv2.resize(image, (image_info['w'], image_info['h']))
 
         theta = image_info['orientation']
-        dthetas = [-30, -20, -10, 0, 10, 20, 30]
+        dthetas = [0]
         for dtheta in dthetas:
             orientation = -theta + dtheta
             rotated_image = rotate_image(image, orientation)
@@ -54,7 +53,8 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
                     positive_rects += v
 
             if border_rects is None:
-                raise Exception('border rectangle must exist.')
+                print 'border rectangle must exist.'
+                continue
 
             # index 0: original image, 1 to k: product border, k+1 to n-1: positive samples
             rects = np.array([image_rect] + border_rects + positive_rects)
@@ -74,16 +74,15 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
             r_img_w = rotated_image.shape[1]
             r_img_h = rotated_image.shape[0]
 
-            min_size = 80
+            min_size = 100
             max_size = min(r_img_w, r_img_h)
-            window_size_growth = 1.35
-            skip_factor = 5
+            window_size_growth = 1.8
 
             size = min_size
             while size <= max_size:
-                print 'size: ', size
-                for x in range(0, r_img_w - size, size/skip_factor):
-                    for y in range(0, r_img_h - size, size/skip_factor):
+            	skip_size = max(size/2, 80)
+                for x in range(0, r_img_w - size, skip_size):
+                    for y in range(0, r_img_h - size, skip_size):
                         p_window = rect_to_polygon(array([(x, y, size, size)]))[0]
                         window_area = size**2 - 1  # subtract 1 in case of floating point errors
                         win_img_overlap = find_overlapping_polygon_area(p_window, p_image)
