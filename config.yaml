@@ -5,6 +5,11 @@ paths:
                 /Users/daeyun/class/cs543/img/
             annotation:
                 /Users/daeyun/class/cs543/annotation/
+        step one:
+            positive:
+                /Users/daeyun/class/cs543/out/sq_image_patch/
+            negative:
+                /Users/daeyun/class/cs543/out/sq_negatives/
     output:
         data prep:
             image:
@@ -22,3 +27,8 @@ paths:
                     /Users/daeyun/class/cs543/out/sq_image_patch/
                 negative:
                     /Volumes/Daeyun HDD/dataset/cs543/sq_negatives
+        first feature extraction:
+            positive:
+                /Users/daeyun/class/cs543/out/training_data/pos/
+            negative:
+                /Users/daeyun/class/cs543/out/training_data/neg/
