@@ -4,6 +4,7 @@ install_requires = [
     'pyyaml',
     'numpy',
     'matplotlib',
+    'scikit-image',
 ]
 
 setup(
