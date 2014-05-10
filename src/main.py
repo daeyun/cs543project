@@ -52,7 +52,6 @@ def main():
         input_annotation_dir = config['paths']['input']['initial']['annotation']
         out_dir = config['paths']['output']['data prep']['square image']['negative']
 
-	print "1"
         extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch)
 
 if __name__ == '__main__':
