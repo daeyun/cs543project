@@ -67,7 +67,6 @@ def chi_squared_distance(hist1, hist2):
     @type hist2: ndarray
     @rtype: np.float32
     """
-
     x = hist1.flatten()
     y = hist2.flatten()
     return num.sum(num.square(x-y)/(x+y))/2
