@@ -57,3 +57,17 @@ def compute_lab_histogram(img, mask=None):
     hist = cv2.normalize(hist, norm_type=cv2.NORM_L1)
 
     return hist
+
+
+def chi_squared_distance(hist1, hist2):
+    """
+    Compute d(x,y) = sum((xi-yi)^2/(xi+yi)) / 2 between two histograms.
+    hist1 and hist2 must be normalized so that their entries sum up to 1
+    @type hist1: ndarray
+    @type hist2: ndarray
+    @rtype: np.float32
+    """
+
+    x = hist1.flatten()
+    y = hist2.flatten()
+    return num.sum(num.square(x-y)/(x+y))/2

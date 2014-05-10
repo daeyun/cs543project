@@ -31,4 +31,4 @@ for idx, filename in enumerate(positive_set_paths + negative_set_paths):
     fd = compute_hog(img)
     # print fd
 
-    compute_lab_histogram(img)
+    print compute_lab_histogram(img)
