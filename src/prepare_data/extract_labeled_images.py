@@ -1,7 +1,7 @@
 import os
 import cv2
 from helpers.config_helpers import parse_annotations
-from helpers.image_operation_helpers import rotate_image, get_ROIs
+from helpers.image_operation_helpers import rotate_image, crop_images
 from helpers.io_helpers import search_files_by_extension, path_to_filename
 
 __author__ = 'Daeyun Shin'
@@ -42,7 +42,7 @@ def extract_labeled_images(input_image_dir, input_annotation_dir, out_dir, callb
                 adjusted_rects.append(map(int, new_rect))
 
             # Image patches annotated with the current label
-            ROIs = get_ROIs(image, adjusted_rects)
+            ROIs = crop_images(image, adjusted_rects)
 
             out_dir_label = os.path.join(out_dir, label)
 

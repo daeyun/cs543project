@@ -1,6 +1,7 @@
 import json
 import yaml
 from io_helpers import search_files_by_extension
+import re
 
 __author__ = 'Daeyun Shin'
 
@@ -44,6 +45,11 @@ def parse_annotations(json_path):
         annotations[dict_data['filename']] = {'rects': rects, 'image info': image_info}
 
     return annotations
+
+def unpack_filename(filename):
+    m = re.search('([^_/]+?)__([0-9]+)_([0-9]+)_([0-9]+)_([0-9]+)_([-0-9]+)_([-0-9]+).[^/_\.]+?$', filename)
+    groups = m.groups()
+    return tuple([groups[0]] + [int(g) for g in groups[1:]])
 
 
 if __name__ == "__main__":

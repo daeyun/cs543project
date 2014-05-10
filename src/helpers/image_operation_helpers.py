@@ -52,7 +52,7 @@ def getTranslationMatrix2d(dx, dy):
     return np.matrix([[1, 0, dx], [0, 1, dy], [0, 0, 1]])
 
 
-def get_ROIs(image, rects):
+def crop_images(image, rects):
     """
     @type image: ndarray
     @type rects: list
@@ -64,6 +64,15 @@ def get_ROIs(image, rects):
         results.append(roi)
 
     return results
+
+def crop_image(image, roi_rect):
+    """
+    @type image: ndarray
+    @type rects: list
+    """
+    x, y, w, h = roi_rect
+    cropped_img = image[y:y + h + 1, x:x + w + 1]
+    return cropped_img
 
 
 if __name__ == "__main__":

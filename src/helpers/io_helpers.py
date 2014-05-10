@@ -47,7 +47,7 @@ def pretty_print_exception(msg, e):
     indented_print(str(e))
 
 
-def search_files_by_extension(path, extensions):
+def search_files_by_extension(path, extensions, is_recursive=False):
     """
     Find all files in a directory with given file extensions.
 
@@ -55,13 +55,24 @@ def search_files_by_extension(path, extensions):
     @type extensions: list
     @rtype: list
     """
-    file_names = []
+    filenames = []
     path = os.path.normpath(path) + os.sep
     search_pattern = '.({})$'.format('|'.join(extensions))
-    for file_name in os.listdir(path):
-        if re.search(search_pattern, file_name, re.IGNORECASE):
-            file_names.append(path + file_name)
-    return file_names
+
+    if is_recursive:
+        # list of full paths
+        paths = [os.path.join(dp, f) for dp, dn, fn in os.walk(path) for f in fn]
+    else:
+        # list of the names of the files
+        paths = os.listdir(path)
+
+    for filename in paths:
+        if re.search(search_pattern, filename, re.IGNORECASE):
+            if not is_recursive:
+                filenames.append(path + filename)
+            else:
+                filenames.append(filename)
+    return filenames
 
 
 def path_to_filename(path):
@@ -82,3 +93,16 @@ def save_image(out_path, image):
     @type out_path: string
     """
     cv2.imwrite(out_path, image)
+
+
+def ensure_extension(filename, ext):
+    """
+    Make sure filename ends with .ext. Add .ext if not.
+    """
+    if ext.startswith('.'):
+        ext = ext[1:]
+
+    search_pattern = '\.{}$'.format(ext)
+    if re.search(search_pattern, filename, re.IGNORECASE) is None:
+        return "{}.{}".format(filename, ext)
+    return filename

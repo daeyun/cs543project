@@ -4,8 +4,8 @@ from numpy.core.multiarray import ndarray, array
 from helpers.io_helpers import search_files_by_extension, path_to_filename
 from helpers.config_helpers import parse_annotations
 from helpers.geometry_helpers import rect_to_polygon, rotate_rects, find_overlapping_polygon_area
-from helpers.image_operation_helpers import rotate_image, get_ROIs
-from helpers.plotting_helpers import plot_rects_on_image
+from helpers.image_operation_helpers import rotate_image, crop_images
+from helpers.plotting_helpers import plot_polygons_on_image
 
 __author__ = 'Daeyun Shin'
 
@@ -69,7 +69,7 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
             p_borders = rotated_poly_rects[1:len(border_rects)+1]
             p_positives = rotated_poly_rects[len(border_rects)+1:]
 
-            # plot_rects_on_image(rotated_image, [image_poly, border_poly, positive_poly], ['red', 'blue', 'yellow'])
+            # plot_polygons_on_image(rotated_image, [image_poly, border_poly, positive_poly], ['red', 'blue', 'yellow'])
 
             r_img_w = rotated_image.shape[1]
             r_img_h = rotated_image.shape[0]
@@ -121,8 +121,7 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
                             'out dir': out_dir
                         }
 
-
-                        img_patch = get_ROIs(rotated_image, [(x, y, size-1, size-1)])[0]
+                        img_patch = crop_images(rotated_image, [(x, y, size-1, size-1)])[0]
 
                         if size > max_width:
                             img_patch = cv2.resize(img_patch, (max_width, max_width))

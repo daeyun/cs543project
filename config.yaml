@@ -11,6 +11,8 @@ paths:
             negative:
                 /Users/daeyun/class/cs543/out/sq_negatives/
     output:
+        figure save dir:
+            /Users/daeyun/Desktop/figures/
         data prep:
             image:
                 positive:

@@ -3,7 +3,7 @@ import cv2
 from numpy import ndarray
 from helpers.config_helpers import parse_annotations
 from helpers.geometry_helpers import rect_to_polygon, find_overlapping_polygon_area
-from helpers.image_operation_helpers import get_ROIs, rotate_image
+from helpers.image_operation_helpers import crop_images, rotate_image
 from helpers.io_helpers import search_files_by_extension, path_to_filename
 
 __author__ = 'Daeyun Shin'
@@ -59,7 +59,7 @@ def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callba
                         squares.append((x, y+dy, w, w))
 
             # Image patches annotated with the current label
-            ROIs = get_ROIs(image, squares)
+            ROIs = crop_images(image, squares)
 
             out_dir_label = os.path.join(out_dir, label)
 

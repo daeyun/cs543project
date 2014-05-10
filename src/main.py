@@ -21,6 +21,9 @@ def main():
 
     try:
         config = parse_config(get_absolute_path(config_path))
+        # g_config is a global variable
+        global g_config
+        g_config = config
     except Exception as e:
         pretty_print_exception("Could not load {}".format(config_path), e)
         return
