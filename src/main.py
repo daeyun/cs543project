@@ -1,4 +1,5 @@
 import argparse
+from feature_extraction.extract_features import extract_features
 
 from helpers.config_helpers import parse_config
 from helpers.io_helpers import pretty_print_exception, get_absolute_path
@@ -62,6 +63,14 @@ def main():
         out_dir = config['paths']['output']['data prep']['square image']['negative']
 
         extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch)
+
+    elif args.task == 'extract-features':
+        source_img_dir = config['paths']['input']['initial']['image']
+        annotation_dir = config['paths']['input']['initial']['annotation']
+        pos_set_dir = config['paths']['input']['step one']['positive']
+        neg_set_dir = config['paths']['input']['step one']['negative']
+
+        extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=None, num_instances=None, num_processes=None)
 
 if __name__ == '__main__':
     main()
