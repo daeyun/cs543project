@@ -7,7 +7,7 @@ from prepare_data.extract_labeled_images import extract_labeled_images
 from prepare_data.extract_noise import extract_noise
 from prepare_data.extract_square_images import extract_square_images
 from prepare_data.save_image_patch import save_image_patch
-from scratch.classification import training
+from scratch.train import training
 
 __author__ = 'Daeyun Shin'
 

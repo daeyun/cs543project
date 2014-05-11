@@ -1,6 +1,7 @@
 import numpy as num
 from numpy.ma import vstack
 from sklearn import linear_model, metrics, cross_validation
+import sklearn
 from sklearn.cross_validation import train_test_split
 from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
