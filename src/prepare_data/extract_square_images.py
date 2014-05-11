@@ -17,9 +17,11 @@ def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callba
     for image_path in image_paths:
 
         # Distributed processing
-        if instance_id is not None and num_instances is not None \
-                        and (int(hashlib.md5(image_path).hexdigest(), 16) % num_instances) != instance_id:
-            continue
+        if instance_id is not None and num_instances is not None:
+            if (int(hashlib.md5(image_path).hexdigest(), 16) % num_instances) != instance_id:
+                continue
+            print "instance id: {}. total number of instances {}".format(instance_id, num_instances)
+            print "processing file {}".format(image_path)
 
         image = cv2.imread(image_path)
         image_filename = path_to_filename(image_path)
