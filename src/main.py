@@ -7,6 +7,7 @@ from prepare_data.extract_labeled_images import extract_labeled_images
 from prepare_data.extract_noise import extract_noise
 from prepare_data.extract_square_images import extract_square_images
 from prepare_data.save_image_patch import save_image_patch
+from scratch.classification import training
 
 __author__ = 'Daeyun Shin'
 
@@ -74,6 +75,10 @@ def main():
         out_dir = config['paths']['output']['first feature extraction']
 
         extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=instance_id, num_instances=num_instances, num_processes=n_processes)
+
+    elif args.task == 'train':
+        training_data_dir = config['paths']['input']['training']
+        training(training_data_dir)
 
 if __name__ == '__main__':
     main()
