@@ -100,7 +100,7 @@ def feature_extractor_process(X, Y, annotations, source_img_dir, out_dir, proces
         out_filename = "{instance_id}_{process_id}_{y}.txt".format(instance_id=instance_id, process_id=process_id, y=Y[idx])
         out_path = os.path.join(out_dir, out_filename)
         with open(out_path, "a") as myfile:
-            myfile.write(', '.join(map(str, feature_vector)) + '\n')
+            myfile.write(str(Y[idx]) + ', ' + ', '.join(map(str, feature_vector)) + '\n')
 
         info('saved {} as {}'.format(filename, out_path))
         # info(feature_vector)

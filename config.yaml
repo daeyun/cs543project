@@ -1,8 +1,8 @@
 paths:
     base dir:
-        /home/ubuntu/mount/cs543/
+        /Users/daeyun/class/cs543/
     instance info:
-        /home/ubuntu/instance_id
+        /Users/daeyun/instance_id
     input:
         initial:
             image:
@@ -16,7 +16,7 @@ paths:
                 out/sq_negatives/
     output:
         figure save dir:
-            cs543/figures/
+            figures/
         data prep:
             image:
                 positive:
