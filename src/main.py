@@ -28,7 +28,7 @@ def main():
         pretty_print_exception("Could not load {}".format(config_path), e)
         return
 
-    n_processes = min(int(args.n_processes), 1)
+    n_processes = max(int(args.n_processes), 1)
 
     instance_id = None
     num_instances = None
@@ -73,7 +73,7 @@ def main():
         neg_set_dir = config['paths']['input']['step one']['negative']
         out_dir = config['paths']['output']['first feature extraction']
 
-        extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=instance_id, num_instances=instance_id, num_processes=n_processes)
+        extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=instance_id, num_instances=num_instances, num_processes=n_processes)
 
 if __name__ == '__main__':
     main()

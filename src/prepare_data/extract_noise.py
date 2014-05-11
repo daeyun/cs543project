@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import hashlib
 from numpy.core.multiarray import ndarray, array
 from helpers.io_helpers import search_files_by_extension, path_to_filename
 from helpers.config_helpers import parse_annotations
@@ -43,7 +44,7 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
             image = cv2.resize(image, (image_info['w'], image_info['h']))
 
         theta = image_info['orientation']
-        dthetas = [0]
+        dthetas = [0, 15]
         for dtheta in dthetas:
             orientation = -theta + dtheta
             rotated_image = rotate_image(image, orientation)
@@ -81,13 +82,13 @@ def extract_noise(input_image_dir, input_annotation_dir, out_dir, callback, max_
             r_img_w = rotated_image.shape[1]
             r_img_h = rotated_image.shape[0]
 
-            min_size = 100
+            min_size = 80
             max_size = min(r_img_w, r_img_h)
-            window_size_growth = 1.8
+            window_size_growth = 1.6
 
             size = min_size
             while size <= max_size:
-            	skip_size = max(size/2, 80)
+            	skip_size = max(size/2, 50)
                 for x in range(0, r_img_w - size, skip_size):
                     for y in range(0, r_img_h - size, skip_size):
                         p_window = rect_to_polygon(array([(x, y, size, size)]))[0]

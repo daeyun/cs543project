@@ -16,7 +16,6 @@ def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callba
     image_paths = search_files_by_extension(input_image_dir, ["JPG"])
     for image_path in image_paths:
 
-        print 'instance_id', instance_id, num_instances
         # Distributed processing
         if instance_id is not None and num_instances is not None:
             if (int(hashlib.md5(image_path).hexdigest(), 16) % num_instances) != instance_id:

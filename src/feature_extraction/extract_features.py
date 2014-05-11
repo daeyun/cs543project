@@ -28,12 +28,74 @@ def info(msg):
     print 'process {}: {}'.format(os.getpid(), msg)
 
 
-def feature_extractor_process(X, Y):
-    info('starting')
-    info(str(X))
-    info(str(Y))
-    info('ending')
+def feature_extractor_process(X, Y, annotations, source_img_dir):
+    assert len(X) == len(Y)
+    info('starting. received {} items.'.format(len(X)))
 
+    for idx, filename in enumerate(X):
+        img = cv2.imread(filename)
+
+        # HOG feature vector
+        fd = compute_hog(img)
+
+        source_filename, x, y, w, h, theta, dtheta = unpack_filename(filename)
+        source_file_path = os.path.join(source_img_dir, source_filename)
+
+
+        source_img = cv2.imread(source_file_path)
+        orientation = -theta + dtheta
+
+        source_img = rotate_image(source_img, orientation)
+
+        patch_rect = (x, y, w, h)
+
+
+        border_rects = num.array(annotations[source_filename]['rects']['border'])
+        border_rects[:, 0] += source_img.shape[1] / 2.0
+        border_rects[:, 1] += source_img.shape[0] / 2.0
+        border_rect = None
+
+        for r in border_rects:
+            patch_poly = rect_to_polygon(num.array([patch_rect]))
+            border_poly = rect_to_polygon(num.array([r]))
+            area = find_overlapping_polygon_area(patch_poly[0], border_poly[0])
+            if area is not None and area > w * h * 0.5:
+                border_rect = r
+
+        if border_rect is None:
+            print "Border not found"
+            continue
+
+        print patch_rect
+        print source_img.shape
+        print source_img.dtype
+
+        color_contrasts = compute_surrounding_color_contrast(source_img, patch_rect, border_rect)
+        cc_dissimilarity = [1 / (i / 10 + 1) for i in color_contrasts]
+        print fd
+        print color_contrasts
+        print cc_dissimilarity
+
+        # normalize x, y, w, h values to be used as features.
+        # TODO: vectorize this
+        cx = x + w / 2.0
+        cy = y + h / 2.0
+        bx, by, bw, bh = border_rect
+        b_cx = bx + bw / 2.0
+        b_cy = by + bh / 2.0
+        dcx = cx - b_cx
+        dcy = cy - b_cy
+
+        dcx = dcx / bw + 0.5
+        dcy = dcy / bh + 0.5
+        dw = w / bw
+        dh = h / bh
+
+        feature_vector = hstack((fd, cc_dissimilarity, num.array([dcx, dcy, dw, dh])))
+
+        info(feature_vector)
+
+    info('ending')
 
 def chunks(l, n):
     """
@@ -59,12 +121,13 @@ def extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, o
     X = num.array(positive_set_paths + negative_set_paths)
     Y = num.array([1] * len(positive_set_paths) + [0] * len(negative_set_paths))
 
-    num.random.seed(0)
-    shuffle_in_unison_inplace(X, Y)
+    num.random.seed(383838)
+    X, Y = shuffle_in_unison_inplace(X, Y)
     print 'Shuffled with seed value 0. X hash: {}, Y hash: {}'.format(hash(tuple(X)), hash(tuple(Y)))
 
     assert len(X) == len(Y)
     n_total_items = len(Y)
+
     X = chunks(X, num_instances)[instance_id]
     Y = chunks(Y, num_instances)[instance_id]
 
@@ -75,7 +138,7 @@ def extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, o
 
     processes = [0] * num_processes
     for i in range(num_processes):
-        processes[i] = Process(target=feature_extractor_process, args=(Xs[i], Ys[i]))
+        processes[i] = Process(target=feature_extractor_process, args=(Xs[i], Ys[i], annotations, source_img_dir))
 
     for process in processes:
         process.start()
@@ -85,57 +148,3 @@ def extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, o
 
     info('Exiting')
 
-    # for idx, filename in enumerate(positive_set_paths + negative_set_paths):
-    #     img = cv2.imread(filename)
-    #     fd = compute_hog(img)
-    #     # print fd
-    #
-    #     source_filename, x, y, w, h, theta, dtheta = unpack_filename(filename)
-    #     source_file_path = os.path.join(source_img_dir, source_filename)
-    #
-    #     source_img = cv2.imread(source_file_path)
-    #     orientation = -theta + dtheta
-    #     source_img = rotate_image(source_img, orientation)
-    #
-    #     patch_rect = (x, y, w, h)
-    #
-    #     border_rects = num.array(annotations[source_filename]['rects']['border'])
-    #     border_rects[:, 0] += source_img.shape[1] / 2.0
-    #     border_rects[:, 1] += source_img.shape[0] / 2.0
-    #     border_rect = None
-    #
-    #     for r in border_rects:
-    #         patch_poly = rect_to_polygon(num.array([patch_rect]))
-    #         border_poly = rect_to_polygon(num.array([r]))
-    #         area = find_overlapping_polygon_area(patch_poly[0], border_poly[0])
-    #         if area is not None and area > w * h * 0.5:
-    #             border_rect = r
-    #
-    #     if border_rect is None:
-    #         print "Border not found"
-    #         continue
-    #
-    #     color_contrasts = compute_surrounding_color_contrast(source_img, patch_rect, border_rect)
-    #     cc_dissimilarity = [1 / (i / 10 + 1) for i in color_contrasts]
-    #     print fd
-    #     print color_contrasts
-    #     print cc_dissimilarity
-    #
-    #     # normalize x, y, w, h values to be used as features.
-    #     # TODO: vectorize this
-    #     cx = x + w / 2.0
-    #     cy = y + h / 2.0
-    #     bx, by, bw, bh = border_rect
-    #     b_cx = bx + bw / 2.0
-    #     b_cy = by + bh / 2.0
-    #     dcx = cx - b_cx
-    #     dcy = cy - b_cy
-    #
-    #     dcx = dcx / bw + 0.5
-    #     dcy = dcy / bh + 0.5
-    #     dw = w / bw
-    #     dh = h / bh
-    #
-    #     feature_vector = hstack((fd, cc_dissimilarity, num.array([dcx, dcy, dw, dh])))
-    #
-    #     print feature_vector

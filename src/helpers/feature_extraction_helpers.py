@@ -123,6 +123,10 @@ def compute_surrounding_color_contrast(img, rect, border_rect, levels=2, backgro
         surrounding_hist = compute_lab_histogram(expanded_rect_img, mask=mask)
 
         # method=1 is the same as cv.CV_COMP_CHISQR
+        print window_hist
+        print surrounding_hist
+        print window_hist.dtype
+        print surrounding_hist.dtype
         chi_squared_distances[level] = cv2.compareHist(window_hist, surrounding_hist, method=1)
 
         prev_rect = expanded_rect
