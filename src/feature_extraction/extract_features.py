@@ -10,7 +10,7 @@ from helpers.config_helpers import parse_config, parse_annotations, unpack_filen
 from helpers.feature_extraction_helpers import compute_hog, compute_lab_histogram, compute_surrounding_color_contrast
 from helpers.geometry_helpers import find_overlapping_polygon_area, rect_to_polygon
 from helpers.image_operation_helpers import rotate_image
-from helpers.io_helpers import get_absolute_path, search_files_by_extension
+from helpers.io_helpers import get_absolute_path, search_files_by_extension, pretty_print_exception
 from helpers.plotting_helpers import plot_polygons_on_image
 from multiprocessing import Process
 
@@ -50,7 +50,12 @@ def feature_extractor_process(X, Y, annotations, source_img_dir):
         patch_rect = (x, y, w, h)
 
 
-        border_rects = num.array(annotations[source_filename]['rects']['border'])
+        try:
+            border_rects = num.array(annotations[source_filename]['rects']['border'])
+        except Exception as e:
+            pretty_print_exception('Annotation is not available for {}'.format(filename), e)
+            continue
+
         border_rects[:, 0] += source_img.shape[1] / 2.0
         border_rects[:, 1] += source_img.shape[0] / 2.0
         border_rect = None
@@ -66,15 +71,8 @@ def feature_extractor_process(X, Y, annotations, source_img_dir):
             print "Border not found"
             continue
 
-        print patch_rect
-        print source_img.shape
-        print source_img.dtype
-
         color_contrasts = compute_surrounding_color_contrast(source_img, patch_rect, border_rect)
         cc_dissimilarity = [1 / (i / 10 + 1) for i in color_contrasts]
-        print fd
-        print color_contrasts
-        print cc_dissimilarity
 
         # normalize x, y, w, h values to be used as features.
         # TODO: vectorize this
@@ -93,7 +91,8 @@ def feature_extractor_process(X, Y, annotations, source_img_dir):
 
         feature_vector = hstack((fd, cc_dissimilarity, num.array([dcx, dcy, dw, dh])))
 
-        info(feature_vector)
+        info('processed ' + filename)
+        # info(feature_vector)
 
     info('ending')
 

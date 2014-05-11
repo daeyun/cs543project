@@ -110,32 +110,28 @@ def compute_surrounding_color_contrast(img, rect, border_rect, levels=2, backgro
     rect_img = crop_image(img, rect)
     window_hist = compute_lab_histogram(rect_img)
 
-    # rects = [rect]
+    rects = [rect]
 
     prev_rect = rect
     for level in range(levels):
         expanded_rect = expand_rect(prev_rect, radius_increase=1.5)
         expanded_rect = get_intersecting_rect(expanded_rect, border_rect)
-        # rects.append(expanded_rect)
+        rects.append(expanded_rect)
         expanded_rect_img = crop_image(img, expanded_rect)
         mask = get_mask(expanded_rect, prev_rect)
 
         surrounding_hist = compute_lab_histogram(expanded_rect_img, mask=mask)
 
         # method=1 is the same as cv.CV_COMP_CHISQR
-        print window_hist
-        print surrounding_hist
-        print window_hist.dtype
-        print surrounding_hist.dtype
         chi_squared_distances[level] = cv2.compareHist(window_hist, surrounding_hist, method=1)
 
         prev_rect = expanded_rect
 
-    # # Uncomment to plot the surrounding areas
-    # rects_list = [rect_to_polygon([border_rect])[0]]
-    # for r in rects:
-    #     rects_list.append(rect_to_polygon([r])[0])
-    # plot_polygons_on_image(img, rects_list, ['red', 'blue', 'yellow', 'green'], will_block=True)
+    # Uncomment to plot the surrounding areas
+    rects_list = [rect_to_polygon([border_rect])[0]]
+    for r in rects:
+        rects_list.append(rect_to_polygon([r])[0])
+    plot_polygons_on_image(img, rects_list, ['red', 'blue', 'yellow', 'green'], will_block=True)
 
     if background_hist is None:
         rect_img = crop_image(img, border_rect)
