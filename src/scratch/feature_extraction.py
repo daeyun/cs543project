@@ -87,3 +87,5 @@ for idx, filename in enumerate(positive_set_paths + negative_set_paths):
     dh = h/bh
 
     feature_vector = hstack((fd, cc_dissimilarity, num.array([dcx, dcy, dw, dh])))
+
+    print feature_vector
