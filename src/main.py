@@ -15,7 +15,16 @@ def main():
     parser.add_argument('task')
     parser.add_argument('--config-file', nargs='?', default='../config.yaml',
                         help='path to config.yaml (default: ../config.yaml)')
+    parser.add_argument('--distributed', action='store_true')
     args = parser.parse_args()
+
+    if args.distributed:
+        try:
+            f = open('/Users/daeyun/instance_id')
+            instance_id, num_instances = [int(i) for i in f.readlines()[0].strip().split(' ')]
+            f.close()
+        except Exception as e:
+            pretty_print_exception("Could not open ~/instance_id", e)
 
     config_path = args.config_file
 
@@ -45,7 +54,7 @@ def main():
         input_annotation_dir = config['paths']['input']['initial']['annotation']
         out_dir = config['paths']['output']['data prep']['square image']['positive']
 
-        extract_square_images(input_image_dir, input_annotation_dir, out_dir, callback=save_image_patch, max_side=256)
+        extract_square_images(input_image_dir, input_annotation_dir, out_dir, callback=save_image_patch, max_side=256, instance_id=instance_id, num_instances=num_instances)
 
     elif args.task == 'generate-negative-samples':
         input_image_dir = config['paths']['input']['initial']['image']

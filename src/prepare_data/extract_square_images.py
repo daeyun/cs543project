@@ -1,3 +1,4 @@
+import hashlib
 import os
 import cv2
 from numpy import ndarray
@@ -9,10 +10,17 @@ from helpers.io_helpers import search_files_by_extension, path_to_filename
 __author__ = 'Daeyun Shin'
 
 
-def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callback, max_side=256):
+def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callback, max_side=256, instance_id=None,
+                          num_instances=None):
     annotations = parse_annotations(input_annotation_dir)
     image_paths = search_files_by_extension(input_image_dir, ["JPG"])
     for image_path in image_paths:
+
+        # Distributed processing
+        if instance_id is not None and num_instances is not None \
+                        and (int(hashlib.md5(image_path).hexdigest(), 16) % num_instances) != instance_id:
+            continue
+
         image = cv2.imread(image_path)
         image_filename = path_to_filename(image_path)
         try:
@@ -41,22 +49,22 @@ def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callba
             (img_w, img_h) = image.shape[1], image.shape[0]
             for rect in rects:
                 x, y, w, h = rect
-                new_rect = x+img_w/2, y+img_h/2, w, h
+                new_rect = x + img_w / 2, y + img_h / 2, w, h
                 adjusted_rects.append(map(int, new_rect))
 
             squares = []
             for rect in adjusted_rects:
                 x, y, w, h = rect
                 if w > h:
-                    end = w-h+1
-                    step = max(min(end/3, h/2), 1)
+                    end = w - h + 1
+                    step = max(min(end / 3, h / 2), 1)
                     for dx in range(0, end, step):
-                        squares.append((x+dx, y, h, h))
+                        squares.append((x + dx, y, h, h))
                 else:
-                    end = h-w+1
-                    step = max(min(end/3, h/2), 1)
+                    end = h - w + 1
+                    step = max(min(end / 3, h / 2), 1)
                     for dy in range(0, end, step):
-                        squares.append((x, y+dy, w, w))
+                        squares.append((x, y + dy, w, w))
 
             # Image patches annotated with the current label
             ROIs = crop_images(image, squares)
@@ -73,15 +81,15 @@ def extract_square_images(input_image_dir, input_annotation_dir, out_dir, callba
                         'w': w,
                         'h': h,
                         'label': label,
-                        },
+                    },
                     'source': {
                         'theta': orientation,
                         'path': image_path,
-                        },
+                    },
                     'out dir': out_dir_label
                 }
 
-                assert(w == h)
+                assert (w == h)
 
                 if w > max_side:
                     img_patch = cv2.resize(img_patch, (max_side, max_side))
