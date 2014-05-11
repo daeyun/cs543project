@@ -10,7 +10,8 @@ from helpers.config_helpers import parse_config, parse_annotations, unpack_filen
 from helpers.feature_extraction_helpers import compute_hog, compute_lab_histogram, compute_surrounding_color_contrast
 from helpers.geometry_helpers import find_overlapping_polygon_area, rect_to_polygon
 from helpers.image_operation_helpers import rotate_image
-from helpers.io_helpers import get_absolute_path, search_files_by_extension, pretty_print_exception
+from helpers.io_helpers import get_absolute_path, search_files_by_extension, pretty_print_exception, \
+    make_sure_dir_exists
 from helpers.plotting_helpers import plot_polygons_on_image
 from multiprocessing import Process
 
@@ -28,9 +29,13 @@ def info(msg):
     print 'process {}: {}'.format(os.getpid(), msg)
 
 
-def feature_extractor_process(X, Y, annotations, source_img_dir):
+def feature_extractor_process(X, Y, annotations, source_img_dir, out_dir, process_id, instance_id):
     assert len(X) == len(Y)
     info('starting. received {} items.'.format(len(X)))
+
+    source_img_dict = {}
+
+    make_sure_dir_exists(out_dir)
 
     for idx, filename in enumerate(X):
         img = cv2.imread(filename)
@@ -41,14 +46,15 @@ def feature_extractor_process(X, Y, annotations, source_img_dir):
         source_filename, x, y, w, h, theta, dtheta = unpack_filename(filename)
         source_file_path = os.path.join(source_img_dir, source_filename)
 
+        if source_file_path not in source_img_dict:
+            source_img = cv2.imread(source_file_path)
+            source_img_dict[source_file_path] = source_img
+        else:
+            source_img = source_img_dict[source_file_path]
 
-        source_img = cv2.imread(source_file_path)
         orientation = -theta + dtheta
-
         source_img = rotate_image(source_img, orientation)
-
         patch_rect = (x, y, w, h)
-
 
         try:
             border_rects = num.array(annotations[source_filename]['rects']['border'])
@@ -91,7 +97,12 @@ def feature_extractor_process(X, Y, annotations, source_img_dir):
 
         feature_vector = hstack((fd, cc_dissimilarity, num.array([dcx, dcy, dw, dh])))
 
-        info('processed ' + filename)
+        out_filename = "{instance_id}_{process_id}_{y}.txt".format(instance_id=instance_id, process_id=process_id, y=Y[idx])
+        out_path = os.path.join(out_dir, out_filename)
+        with open(out_path, "a") as myfile:
+            myfile.write(', '.join(map(str, feature_vector)) + '\n')
+
+        info('saved {} as {}'.format(filename, out_path))
         # info(feature_vector)
 
     info('ending')
@@ -137,7 +148,7 @@ def extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, o
 
     processes = [0] * num_processes
     for i in range(num_processes):
-        processes[i] = Process(target=feature_extractor_process, args=(Xs[i], Ys[i], annotations, source_img_dir))
+        processes[i] = Process(target=feature_extractor_process, args=(Xs[i], Ys[i], annotations, source_img_dir, out_dir, i, instance_id))
 
     for process in processes:
         process.start()
