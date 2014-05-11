@@ -18,24 +18,23 @@ def main():
     parser.add_argument('--distributed', action='store_true')
     args = parser.parse_args()
 
-    if args.distributed:
-        try:
-            f = open('/Users/daeyun/instance_id')
-            instance_id, num_instances = [int(i) for i in f.readlines()[0].strip().split(' ')]
-            f.close()
-        except Exception as e:
-            pretty_print_exception("Could not open ~/instance_id", e)
-
     config_path = args.config_file
 
     try:
         config = parse_config(get_absolute_path(config_path))
-        # g_config is a global variable
-        global g_config
-        g_config = config
     except Exception as e:
         pretty_print_exception("Could not load {}".format(config_path), e)
         return
+
+    instance_id = None
+    num_instances = None
+    if args.distributed:
+        try:
+            f = open(config['paths']['instance info'])
+            instance_id, num_instances = [int(i) for i in f.readlines()[0].strip().split(' ')]
+            f.close()
+        except Exception as e:
+            pretty_print_exception("Could not open ~/instance_id", e)
 
     if args.task == 'extract-labeled-images':
         input_image_dir = config['paths']['input']['initial']['image']
@@ -61,7 +60,7 @@ def main():
         input_annotation_dir = config['paths']['input']['initial']['annotation']
         out_dir = config['paths']['output']['data prep']['square image']['negative']
 
-        extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch)
+        extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch, instance_id=instance_id, num_instances=num_instances)
 
 if __name__ == '__main__':
     main()

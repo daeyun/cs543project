@@ -1,36 +1,38 @@
 paths:
+    instance info:
+        /home/ubuntu/instance_id
     input:
         initial:
             image:
-                /Users/daeyun/class/cs543/img/
+                /home/ubuntu/mount/img/
             annotation:
-                /Users/daeyun/class/cs543/annotation/
+                /home/ubuntu/mount/cs543_annotations/
         step one:
             positive:
-                /Users/daeyun/class/cs543/out/sq_image_patch/
+                /home/ubuntu/mount/cs543/out/sq_image_patch/
             negative:
-                /Users/daeyun/class/cs543/out/sq_negatives/
+                /home/ubuntu/mount/cs543/out/sq_negatives/
     output:
         figure save dir:
-            /Users/daeyun/Desktop/figures/
+            /home/ubuntu/mount/cs543/figures/
         data prep:
             image:
                 positive:
-                    /Users/daeyun/class/cs543/out/image_patch/
+                    /home/ubuntu/mount/cs543/out/image_patch/
                 negative:
-                    /Users/daeyun/class/cs543/out/negative_sample/
+                    /home/ubuntu/mount/cs543/out/negative_sample/
             annotation:
                 positive:
-                    /Users/daeyun/class/cs543/out/annotation/
+                    /home/ubuntu/mount/cs543/out/annotation/
                 negative:
-                    /Users/daeyun/class/cs543/out/negative_sample/
+                    /home/ubuntu/mount/cs543/out/negative_sample/
             square image:
                 positive:
-                    /Users/daeyun/class/cs543/out/sq_image_patch/
+                    /home/ubuntu/mount/cs543/out/sq_image_patch/
                 negative:
-                    /Volumes/Daeyun HDD/dataset/cs543/sq_negatives
+                    /home/ubuntu/mount/cs543/out/sq_negatives/
         first feature extraction:
             positive:
-                /Users/daeyun/class/cs543/out/training_data/pos/
+                /home/ubuntu/mount/cs543/out/out/training_data/pos/
             negative:
-                /Users/daeyun/class/cs543/out/training_data/neg/
+                /home/ubuntu/mount/cs543/out/out/training_data/neg/
