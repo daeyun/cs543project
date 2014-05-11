@@ -1,38 +1,37 @@
 paths:
+    base dir:
+        /home/ubuntu/mount/cs543/
     instance info:
         /home/ubuntu/instance_id
     input:
         initial:
             image:
-                /home/ubuntu/mount/img/
+                img/
             annotation:
-                /home/ubuntu/mount/cs543_annotations/
+                annotations/
         step one:
             positive:
-                /home/ubuntu/mount/cs543/out/sq_image_patch/
+                out/sq_image_patch/
             negative:
-                /home/ubuntu/mount/cs543/out/sq_negatives/
+                out/sq_negatives/
     output:
         figure save dir:
-            /home/ubuntu/mount/cs543/figures/
+            cs543/figures/
         data prep:
             image:
                 positive:
-                    /home/ubuntu/mount/cs543/out/image_patch/
+                    out/image_patch/
                 negative:
-                    /home/ubuntu/mount/cs543/out/negative_sample/
+                    out/negative_sample/
             annotation:
                 positive:
-                    /home/ubuntu/mount/cs543/out/annotation/
+                    out/annotation/
                 negative:
-                    /home/ubuntu/mount/cs543/out/negative_sample/
+                    out/negative_sample/
             square image:
                 positive:
-                    /home/ubuntu/mount/cs543/out/sq_image_patch/
+                    out/sq_image_patch/
                 negative:
-                    /home/ubuntu/mount/cs543/out/sq_negatives/
+                    out/sq_negatives/
         first feature extraction:
-            positive:
-                /home/ubuntu/mount/cs543/out/out/training_data/pos/
-            negative:
-                /home/ubuntu/mount/cs543/out/out/training_data/neg/
+            out/training_data/

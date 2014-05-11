@@ -1,4 +1,5 @@
 import json
+import os
 import yaml
 from io_helpers import search_files_by_extension
 import re
@@ -15,7 +16,24 @@ def parse_config(config_path):
     config_f.close()
     if config is None:
         raise Exception('Empty config file')
+
+    base_dir = config['paths']['base dir']
+
+    def concat_base_dir(v):
+        return os.path.join(base_dir, v)
+
+    # modify paths in config
+    operate_on_all_values(config['paths'], concat_base_dir)
+
     return config
+
+
+def operate_on_all_values(dictionary, func):
+    for k, v in dictionary.items():
+        if isinstance(v, dict):
+            operate_on_all_values(v, func)
+        else:
+            dictionary[k] = func(v)
 
 
 def parse_annotations(json_path):
