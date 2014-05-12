@@ -12,6 +12,7 @@ from helpers.geometry_helpers import find_overlapping_polygon_area, rect_to_poly
 from helpers.image_operation_helpers import rotate_image
 from helpers.io_helpers import get_absolute_path, search_files_by_extension, pretty_print_exception, \
     make_sure_dir_exists
+from helpers.parallelization_helpers import chunks
 from helpers.plotting_helpers import plot_polygons_on_image
 from multiprocessing import Process
 
@@ -106,19 +107,6 @@ def feature_extractor_process(X, Y, annotations, source_img_dir, out_dir, proces
         # info(feature_vector)
 
     info('ending')
-
-def chunks(l, n):
-    """
-    split into n chunks
-    http://stackoverflow.com/questions/2130016/splitting-a-list-of-arbitrary-size-into-only-roughly-n-equal-parts
-    """
-    avg = len(l) / float(n)
-    out = []
-    last = 0.0
-    while last < len(l):
-        out.append(l[int(last):int(last + avg)])
-        last += avg
-    return out
 
 
 def extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=None,
