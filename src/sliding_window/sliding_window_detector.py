@@ -35,11 +35,15 @@ class SlidingWindowDetector:
     def __detector_process(self, img, container_rect, windows):
         """
         :type img: ndarray
+        :type container_rect: tuple
         :type windows: list
+        :rtype: list
+
         :param img: Source image. Ideally a view instead of a copy.
         :param container_rect: Rectangular area (x, y, w, h) to run the sliding window. This parameter is necessary
             because the feature extractor needs relative location and size information.
         :param windows: List of ((x, y), resize level)
+        :return: List of (x, y, w, h)
         """
         positives = []
         for window in windows:
@@ -49,7 +53,7 @@ class SlidingWindowDetector:
             features = self.feature_extractor.compute_features(pyr_image, rect, container_rect)
             prediction = self.classifier.predict(features)
             if prediction == 1:
-                positives
+                positives.append(self.upscale_int_tuple(rect, level))
         return positives
 
     def get_pyramid_image(self, img, level):
@@ -68,6 +72,11 @@ class SlidingWindowDetector:
             return resized_image
 
     def detect(self, img, container_rect):
+        """
+        :param img: Image to detect positive responses
+        :param container_rect: Rectangular area (x, y, w, h) to run the detection
+        :return: List of (x, y, w, h)
+        """
         img, r = self.length_resize(img, self.img_size)
         container_rect = tuple([int(round(i*r)) for i in container_rect])
 
