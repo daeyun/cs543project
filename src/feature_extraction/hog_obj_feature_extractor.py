@@ -15,7 +15,7 @@ class HogObjFeatureExtractor:
     def __init__(self):
         self.lab_hist_cache = {}
 
-    def extract_features(self, img, rect, container_rect):
+    def compute_features(self, img, rect, container_rect):
         """
         :type img: ndarray
         :type rect: tuple
