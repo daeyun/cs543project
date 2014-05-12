@@ -1,4 +1,4 @@
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 import cv2
 import itertools
 from helpers.image_operation_helpers import crop_image
@@ -15,8 +15,10 @@ class SlidingWindowDetector:
     def __init__(self, feature_extractor, classifier, win_size=90, img_size=700, n_processes=4, resize_factor=0.8):
         """
         :param feature_extractor: A feature extractor object that computes features given a source image,
-            ROI rect, and a container rect.
-        :param classifier: A binary classifier.
+            ROI rect, and a container rect. It should have the following interface:
+            feature_extractor.compute_features(image: ndarray, rect: (x, y, w, w), container_rect: (x, y, w, h)) -> ndarray
+        :param classifier: A binary classifier. It should have the following interface:
+            self.classifier.predict(features: ndarray) -> 0 or 1
         :param win_size: Size s of the s by s square window.
         :param img_size: Input image will be resized such that the length of the longer side is equal to img_size.
         :param n_processes: Number of processes used to parallelize the workload.
@@ -32,7 +34,7 @@ class SlidingWindowDetector:
         self.img_size = img_size
         self.n_processes = n_processes
 
-    def __detector_process(self, img, container_rect, windows):
+    def __detector(self, img, container_rect, windows):
         """
         :type img: ndarray
         :type container_rect: tuple
@@ -47,14 +49,46 @@ class SlidingWindowDetector:
         """
         positives = []
         for window in windows:
-            x, y, level = window
+            (x, y), level = window
             pyr_image = self.get_pyramid_image(img, level)
             rect = (x, y, self.win_size, self.win_size)
             features = self.feature_extractor.compute_features(pyr_image, rect, container_rect)
             prediction = self.classifier.predict(features)
-            if prediction == 1:
+            if abs(1 - prediction) < 0.1:
                 positives.append(self.upscale_int_tuple(rect, level))
         return positives
+
+    def detect(self, img, container_rect):
+        """
+        :type img: ndarray
+        :type container_rect: tuple[int]
+        :rtype: list[tuple[int]]
+
+        :param img: Image to detect positive response
+        :param container_rect: Rectangular area (x, y, w, h) to run the detection
+        :return: List of (x, y, w, h)
+        """
+        img, r = self.length_resize(img, self.img_size)
+        container_rect = tuple([int(round(i*r)) for i in container_rect])
+
+        w, h = img.shape[1], img.shape[0]
+        windows = self.get_windows(w, h, container_rect=container_rect)
+
+        return self.__detector(img, container_rect, windows)
+
+        # split_windows = chunks(windows, self.n_processes)
+        #
+        # processes = []
+        # for i in range(self.n_processes):
+        #     p = Process(target=self.__detector_process, args=(img, container_rect, split_windows[i]))
+        #     processes.append(p)
+        #     p.start()
+        #
+        # for p in processes:
+        #     p.join()
+        #
+        # # TODO: join and return
+        # return
 
     def get_pyramid_image(self, img, level):
         """
@@ -71,28 +105,6 @@ class SlidingWindowDetector:
             self.image_pyramid[key] = resized_image
             return resized_image
 
-    def detect(self, img, container_rect):
-        """
-        :param img: Image to detect positive responses
-        :param container_rect: Rectangular area (x, y, w, h) to run the detection
-        :return: List of (x, y, w, h)
-        """
-        img, r = self.length_resize(img, self.img_size)
-        container_rect = tuple([int(round(i*r)) for i in container_rect])
-
-        w, h = img.shape[1], img.shape[0]
-        windows = self.get_windows(w, h, container_rect=container_rect)
-
-        split_windows = chunks(windows, self.n_processes)
-
-        pool = Pool(processes=self.n_processes)
-        positives = pool.map(self.__detector_process, split_windows)
-        pool.close()
-        pool.join()
-
-        # Join the list of lists returned by the worker processes
-        return list(itertools.chain.from_iterable(positives))
-
     @staticmethod
     def length_resize(img, l):
         """
@@ -103,10 +115,10 @@ class SlidingWindowDetector:
         imw, imh = img.shape[1], img.shape[0]
         if imw > imh:
             dst_size = (l, int(round(l * float(imh) / imw)))
-            r = int(round(float(l)/imw))
+            r = float(l)/imw
         else:
             dst_size = (int(l * float(imw) / imh), l)
-            r = int(round(float(l)/imh))
+            r = float(l)/imh
         r_img = cv2.resize(img, dst_size)
         return r_img, r
 
