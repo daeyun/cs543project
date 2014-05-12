@@ -26,9 +26,13 @@ class FeatureExtractor:
             try:
                 # raises exception if annotation does not exist for this image
                 image, rect_sets = self.image_manager.load_annotated_image(image_path)
-                features = self.detector.extract_features(image, rect_sets, self.save_features_to_file)
             except Exception as e:
                 pretty_print_exception("Annotation was not found for {}".format(image_path), e)
+                continue
+            try:
+                features = self.sliding_window.extract_features(image, rect_sets)
+            except Exception as e:
+                pretty_print_exception("ERROR. feature extraction failed {}".format(image_path), e)
                 continue
 
             self.save_features_to_file(features, out_dir, image_path)
@@ -41,6 +45,9 @@ class FeatureExtractor:
         make_sure_dir_exists(out_dir)
         out_path = os.path.join(out_dir, out_filename)
 
+        if features is None:
+            print "ERROR: no feature detected? {}".format(source_filename)
+            return
         np.savetxt(out_path, features, fmt='%1.14e', delimiter=',')
 
         print 'saved {} as {}'.format(source_filename, out_path)

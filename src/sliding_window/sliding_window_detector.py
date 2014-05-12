@@ -174,20 +174,20 @@ class SlidingWindow:
 
                 for i in range(count):
                     if features is None:
-                        features = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0])
+                        features = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0] + 1)
                     else:
-                        f_row = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0])
-                        np.vstack((feature_vector, f_row))
+                        f_row = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0] + 1)
+                        features = np.vstack((features, f_row))
             for neg in negatives:
                 neg_rect, level = neg
                 pyr_im = self.get_pyramid_image(img, level)
                 pyr_container_rect = self.downscale_int_tuple(container_rect, level)
-                feature_vector = self.feature_extractor.compute_features(pyr_im, pos_rect, pyr_container_rect)
+                feature_vector = self.feature_extractor.compute_features(pyr_im, neg_rect, pyr_container_rect)
                 if features is None:
-                    features = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0])
+                    features = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0] + 1)
                 else:
-                    f_row = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0])
-                    np.vstack((feature_vector, f_row))
+                    f_row = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0] + 1)
+                    features = np.vstack((features, f_row))
 
         return features
 

@@ -1,8 +1,8 @@
 paths:
     base dir:
-        /Users/daeyun/class/cs543/
+        /home/ubuntu/mount/cs543/
     instance info:
-        /Users/daeyun/instance_id
+        /home/ubuntu/instance_id
     input:
         initial:
             image:
@@ -15,7 +15,7 @@ paths:
             negative:
                 out/sq_negatives/
         training:
-            out/training_data/
+            out/training_data_2/
     output:
         figure save dir:
             figures/
@@ -36,4 +36,4 @@ paths:
                 negative:
                     out/sq_negatives/
         first feature extraction:
-            out/training_data/
+            out/training_data_2/

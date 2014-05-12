@@ -3,6 +3,7 @@ from helpers.config_helpers import parse_annotations
 from helpers.feature_extraction_helpers import get_intersecting_rect2
 from helpers.image_operation_helpers import rotate_image
 from helpers.io_helpers import path_to_filename
+from pprint import pprint
 
 __author__ = 'Daeyun Shin'
 
@@ -62,7 +63,11 @@ class ImageManager:
         theta = image_info['orientation']
         rotated_image = rotate_image(image, -theta)
 
-        labeled_rects = self.annotations[filename]['rects']['logo'] + self.annotations[filename]['rects']['illustration']
+        labeled_rects = []
+        if 'illustration' in self.annotations[filename]['rects']:
+            labeled_rects += self.annotations[filename]['rects']['illustration']
+        if 'logo' in self.annotations[filename]['rects']:
+            labeled_rects += self.annotations[filename]['rects']['logo']
 
         # todo: vectorize this
         for rect in container_rects+labeled_rects:
