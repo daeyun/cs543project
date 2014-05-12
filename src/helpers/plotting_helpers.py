@@ -89,3 +89,62 @@ def plot_polygons_on_image(image, rects_list, colors=None, is_RGB_flipped=True, 
         plt.show()
     else:
         fig.show()
+
+def plot_rects_on_image(image, rects, colors=[(0, 0, 255)], title='annotations', thickness=2):
+    """
+    color follows opencv's BGR space. so the default color is red
+    """
+    im = image.copy()
+    im, r_scale = length_resize(im, 700)
+    for i, rect in enumerate(rects):
+        color = colors[min(i, len(colors)-1)]
+        if type(color) == str:
+            try:
+                color = {
+                    'yellow': (0, 255, 255),
+                    'red': (0, 0, 255),
+                    'magenta': (255, 0, 255),
+                    'blue': (255, 0, 0),
+                    'green': (0, 255, 0),
+                    'white': (255, 255, 255),
+                 }[color]
+            except:
+                color = (0, 255, 255)
+
+        x, y, w, h = rect
+        p1 = (int(x*r_scale), int(y*r_scale))
+        p2 = (int((x+w-1)*r_scale), int((y+h-1)*r_scale))
+        cv2.rectangle(im, p1, p2, color, thickness)
+    cv2.imshow(title, im)
+    cv2.waitKey(0)
+
+
+def plot_rect_sets(image, rect_sets, title='annotations', thickness=3):
+    set_colors = [('red', 'magenta'), ('green', 'yellow'), ('white', 'blue')]
+    rects_to_draw = []
+    colors = []
+    for i, rect_set in enumerate(rect_sets):
+        container_rect, rects = rect_set
+        rects_to_draw.append(container_rect)
+        rects_to_draw += rects
+        container_color, label_color = set_colors[min(i, len(rect_sets))]
+        colors.append(container_color)
+        colors += [label_color]*len(rects)
+    plot_rects_on_image(image, rects_to_draw, colors, title=title, thickness=thickness)
+
+
+def length_resize(img, l):
+    """
+    Return (r_img, r) where r_img is a resized image such that the length of the
+    longer side is equal to l, and the resize factor r is a number such that
+    img_size * r = r_img_size.
+    """
+    imw, imh = img.shape[1], img.shape[0]
+    if imw > imh:
+        dst_size = (l, int(round(l * float(imh) / imw)))
+        r = float(l) / imw
+    else:
+        dst_size = (int(l * float(imw) / imh), l)
+        r = float(l) / imh
+    r_img = cv2.resize(img, dst_size)
+    return r_img, r

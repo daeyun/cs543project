@@ -1,5 +1,5 @@
 import argparse
-from feature_extraction.extract_features import extract_features
+from feature_extractor.sliding_window_feature_extractor import FeatureExtractor
 
 from helpers.config_helpers import parse_config
 from helpers.io_helpers import pretty_print_exception, get_absolute_path
@@ -67,14 +67,23 @@ def main():
 
         extract_noise(input_image_dir, input_annotation_dir, out_dir, save_image_patch, instance_id=instance_id, num_instances=num_instances)
 
+    # elif args.task == 'extract-features-distributed':
+    #     source_img_dir = config['paths']['input']['initial']['image']
+    #     annotation_dir = config['paths']['input']['initial']['annotation']
+    #     pos_set_dir = config['paths']['input']['step one']['positive']
+    #     neg_set_dir = config['paths']['input']['step one']['negative']
+    #     out_dir = config['paths']['output']['first feature extraction']
+    #
+    #     extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=instance_id, num_instances=num_instances, num_processes=n_processes)
+
     elif args.task == 'extract-features':
         source_img_dir = config['paths']['input']['initial']['image']
         annotation_dir = config['paths']['input']['initial']['annotation']
-        pos_set_dir = config['paths']['input']['step one']['positive']
-        neg_set_dir = config['paths']['input']['step one']['negative']
         out_dir = config['paths']['output']['first feature extraction']
 
-        extract_features(source_img_dir, annotation_dir, pos_set_dir, neg_set_dir, out_dir, instance_id=instance_id, num_instances=num_instances, num_processes=n_processes)
+        feature_extractor = FeatureExtractor(annotation_dir)
+        feature_extractor.load_images_and_save_features(source_img_dir, out_dir)
+        print 'Done'
 
     elif args.task == 'train':
         training_data_dir = config['paths']['input']['training']

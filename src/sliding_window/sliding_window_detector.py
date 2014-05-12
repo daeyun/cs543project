@@ -1,13 +1,18 @@
 from multiprocessing import Pool, Process
 import cv2
 import itertools
+import time
+from helpers.feature_extraction_helpers import get_intersecting_rect2
 from helpers.image_operation_helpers import crop_image
 from helpers.parallelization_helpers import chunks
+from helpers.plotting_helpers import plot_rects_on_image
+import numpy as np
+import random
 
 __author__ = 'Daeyun Shin'
 
 
-class SlidingWindowDetector:
+class SlidingWindow:
     """
     Multi-scale, square sliding window detector
     """
@@ -47,16 +52,162 @@ class SlidingWindowDetector:
         :param windows: List of ((x, y), resize level)
         :return: List of (x, y, w, h)
         """
+        # count = 0
+        print len(windows), ' windows'
         positives = []
         for window in windows:
             (x, y), level = window
             pyr_image = self.get_pyramid_image(img, level)
             rect = (x, y, self.win_size, self.win_size)
-            features = self.feature_extractor.compute_features(pyr_image, rect, container_rect)
+            new_container_rect = self.downscale_int_tuple(container_rect, level)
+
+            # if count % 40 == 0 or (level > 0 and count % 2) or level > 2:
+            #     print count, level, self.win_size, x, y, pyr_image.shape, new_container_rect
+            #     im = pyr_image.copy()
+            #     cv2.rectangle(im, (x, y), (x + self.win_size, y + self.win_size), (0, 255, 0), 3)
+            #     cx, cy, cw, ch = new_container_rect
+            #     cv2.rectangle(im, (cx, cy), (cx + cw, cy + ch), (0, 0, 255), 3)
+            #     cv2.imshow('Sliding window', im)
+            #     cv2.waitKey(0)
+            # count += 1
+
+            features = self.feature_extractor.compute_features(pyr_image, rect, new_container_rect)
             prediction = self.classifier.predict(features)
             if abs(1 - prediction) < 0.1:
                 positives.append(self.upscale_int_tuple(rect, level))
         return positives
+
+    def extract_features(self, img, rect_sets):
+        img, scale_factor = self.length_resize(img, self.img_size)
+
+        w, h = img.shape[1], img.shape[0]
+        features = None
+
+        for ind, rect_set in enumerate(rect_sets):
+            container_rect, labeled_rects = rect_set
+
+            # resize to match the starting size
+            container_rect = tuple([int(round(i * scale_factor)) for i in container_rect])
+
+            windows = self.get_windows(w, h, container_rect=container_rect)
+            print 'extracting features from {} windows in container {}'.format(len(windows), ind)
+            win_area = self.win_size ** 2
+
+            positives = []
+            negatives = []
+            is_a_good_sample = {}
+
+            # iterate through the set of windows for current container rect
+            for window in windows:
+                (x, y), level = window
+                pyr_image = self.get_pyramid_image(img, level)
+                win_rect = (x, y, self.win_size, self.win_size)
+
+                # resize the container rect again based on the image pyramid level
+                new_container_rect = self.downscale_int_tuple(container_rect, level)
+
+                # determine the current window's label based on annotations
+                # this part should be refactored into a separate function later
+                for labeled_r in labeled_rects:
+                    # resize to match the starting size, and then the pyramid level.
+                    # todo: refactoring
+                    new_labeled_r = tuple([int(round(i * scale_factor)) for i in labeled_r])
+                    new_labeled_r = self.downscale_int_tuple(new_labeled_r, level)
+
+                    lx, ly, lw, lh = new_labeled_r
+
+                    i_rect = get_intersecting_rect2(win_rect, new_labeled_r)
+
+                    # separated the if_blocks for readability
+                    if i_rect is None:
+                        negatives.append((win_rect, level))
+                        continue
+
+                    # intersection size
+                    _, _, iw, ih = i_rect
+                    i_area = iw * ih
+
+                    ## note that this collects a tuple (window, pyramid level), not an upscaled window
+
+                    # if the non-intersecting area is more than 20%, negative
+                    non_intersecting_area = abs(win_area - i_area)
+                    if non_intersecting_area > win_area * 0.12:
+                        negatives.append((win_rect, level))
+                        continue
+
+                    # if the smaller side of the label is more than 20% different, negative
+                    length_difference = abs(min(lw, lh) - self.win_size)
+                    if length_difference > self.win_size * 0.12:
+                        negatives.append((win_rect, level))
+                        continue
+
+                    # now positive
+                    pos_sample = (win_rect, level)
+
+                    # if the labeled area is nearly square, and this window overlaps most of it,
+                    # then this is a good sample, and more like this should be added.
+                    if abs(lw - lh) / float(max(lw, lh)) < 0.3 \
+                            and non_intersecting_area < win_area * 0.08 \
+                            and length_difference < win_area * 0.08:
+                        is_a_good_sample[pos_sample] = True
+
+                    positives.append(pos_sample)
+
+            random.shuffle(negatives)
+            negatives = negatives[:int(len(positives) * 1.3)]
+
+            # self.plot_feature_windows(img, positives, negatives, is_a_good_sample, container_rect)
+
+            # todo: reduce repetition
+            for pos in positives:
+                pos_rect, level = pos
+                pyr_im = self.get_pyramid_image(img, level)
+                pyr_container_rect = self.downscale_int_tuple(container_rect, level)
+                feature_vector = self.feature_extractor.compute_features(pyr_im, pos_rect, pyr_container_rect)
+
+                # right now I'm naively duplicating desired samples in the data set, but ideally I should add noise
+                # and generate synthetic data from it.
+                if pos in is_a_good_sample and is_a_good_sample[pos] is True:
+                    count = 2
+                else:
+                    count = 1
+
+                for i in range(count):
+                    if features is None:
+                        features = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0])
+                    else:
+                        f_row = np.hstack((1, feature_vector)).reshape(1, feature_vector.shape[0])
+                        np.vstack((feature_vector, f_row))
+            for neg in negatives:
+                neg_rect, level = neg
+                pyr_im = self.get_pyramid_image(img, level)
+                pyr_container_rect = self.downscale_int_tuple(container_rect, level)
+                feature_vector = self.feature_extractor.compute_features(pyr_im, pos_rect, pyr_container_rect)
+                if features is None:
+                    features = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0])
+                else:
+                    f_row = np.hstack((0, feature_vector)).reshape(1, feature_vector.shape[0])
+                    np.vstack((feature_vector, f_row))
+
+        return features
+
+    def plot_feature_windows(self, img, pos, neg, is_good, container):
+        rects = []
+        colors = []
+        for prect, l in neg:
+            rect = self.upscale_int_tuple(prect, l)
+            rects.append(rect)
+            colors.append('blue')
+        for prect, l in pos:
+            rect = self.upscale_int_tuple(prect, l)
+            rects.append(rect)
+            if (prect, l) in is_good and is_good[(prect, l)] == True:
+                colors.append('green')
+            else:
+                colors.append('magenta')
+        rects.append(container)
+        colors.append('yellow')
+        plot_rects_on_image(img, rects, colors)
 
     def detect(self, img, container_rect):
         """
@@ -69,7 +220,7 @@ class SlidingWindowDetector:
         :return: List of (x, y, w, h)
         """
         img, r = self.length_resize(img, self.img_size)
-        container_rect = tuple([int(round(i*r)) for i in container_rect])
+        container_rect = tuple([int(round(i * r)) for i in container_rect])
 
         w, h = img.shape[1], img.shape[0]
         windows = self.get_windows(w, h, container_rect=container_rect)
@@ -99,7 +250,7 @@ class SlidingWindowDetector:
         if key in self.image_pyramid:
             return self.image_pyramid[key]
         else:
-            size = img.shape[1], img.shape[1]
+            size = img.shape[1], img.shape[0]
             dst_dist = self.downscale_int_tuple(size, level)
             resized_image = cv2.resize(img, dst_dist)
             self.image_pyramid[key] = resized_image
@@ -115,14 +266,14 @@ class SlidingWindowDetector:
         imw, imh = img.shape[1], img.shape[0]
         if imw > imh:
             dst_size = (l, int(round(l * float(imh) / imw)))
-            r = float(l)/imw
+            r = float(l) / imw
         else:
             dst_size = (int(l * float(imw) / imh), l)
-            r = float(l)/imh
+            r = float(l) / imh
         r_img = cv2.resize(img, dst_size)
         return r_img, r
 
-    def get_windows(self, im_w, im_h, skip=2, container_rect=None, include_size=None):
+    def get_windows(self, im_w, im_h, skip=10, container_rect=None, include_size=None):
         """
         Get a list of window coordinates for further processing.
 
@@ -144,7 +295,9 @@ class SlidingWindowDetector:
 
         windows = []
         w, h = im_w, im_h
+        xl_, xh_, yl_, yh_ = xl, xh, yl, yh
         level = 0
+        _count = 0
         while min(w, h) > self.win_size:
             for x in range(xl, xh, skip):
                 for y in range(yl, yh, skip):
@@ -153,8 +306,12 @@ class SlidingWindowDetector:
                     else:
                         window = (x, y, self.win_size, self.win_size)
                     windows.append((window, level))
+
             level += 1
-            w, h = self.downscale_int_tuple((im_w, im_h), level)
+            w, h, xl, xh, yl, yh = self.downscale_int_tuple(
+                (im_w, im_h, xl_, xh_ + self.win_size, yl_, yh_ + self.win_size), level)
+            xh -= self.win_size
+            yh -= self.win_size
         return windows
 
     def get_cropped_images(self, img, win_size=90, skip=2):

@@ -255,8 +255,8 @@ def expand_rect(rect, radius_increase=1.5):
     @type rect: tuple
     """
     r = num.array(rect)
-    r[0:2] -= r[2:4]*(radius_increase-1)/2
-    r[2:4] = r[2:4]*radius_increase
+    r[0:2] -= num.around(r[2:4].astype(num.float)*(radius_increase-1.0)/2.0).astype(num.int)
+    r[2:4] = num.around(r[2:4].astype(num.float)*radius_increase).astype(num.int)
     r.astype(num.int32)
     return tuple(r)
 

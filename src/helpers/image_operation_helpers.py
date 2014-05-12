@@ -1,3 +1,4 @@
+import hashlib
 import cv2
 import numpy as np
 
@@ -65,15 +66,23 @@ def crop_images(image, rects):
 
     return results
 
+
 def crop_image(image, roi_rect):
     """
     @type image: ndarray
     @type rects: list
     """
     x, y, w, h = roi_rect
-    cropped_img = image[y:y + h + 1, x:x + w + 1]
+    cropped_img = image[y:y + h + 1, x:x + w + 1, :]
+    if cropped_img.shape[0] != cropped_img.shape[1]:
+        s = max(cropped_img.shape[0], cropped_img.shape[1])
+        cropped_img = cv2.resize(cropped_img, (s, s))
     return cropped_img
 
+
+def hash_image(image):
+    image_view = image.view(np.uint8)
+    return hashlib.sha1(image_view).hexdigest()
 
 if __name__ == "__main__":
     import doctest
