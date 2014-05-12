@@ -12,27 +12,28 @@ class SlidingWindowDetector:
     Multi-scale, square sliding window detector
     """
 
-    def __init__(self, feature_extractor, classifier, win_size=90, n_processes=4):
+    def __init__(self, feature_extractor, classifier, win_size=90, img_size=700, n_processes=4, resize_factor=0.8):
         """
         :param feature_extractor: A feature extractor object that computes features given a source image,
             ROI rect, and a container rect.
         :param classifier: A binary classifier.
         :param win_size: Size s of the s by s square window.
+        :param img_size: Input image will be resized such that the length of the longer side is equal to img_size.
+        :param n_processes: Number of processes used to parallelize the workload.
+        :param resize_factor: Ratio indicating the image size differences in the image pyramid.
         """
         self.feature_extractor = feature_extractor
         self.classifier = classifier
         self.image_cache = {}
-        self.resize_factor = 0.8
+        self.resize_factor = resize_factor
         self.win_size = win_size
         self.image_pyramid = {}
-        # List of windows such that classifier.predict(window) == 1
-        self.positive_rois = []
+
+        self.img_size = img_size
         self.n_processes = n_processes
 
     def __detector_process(self, img, container_rect, windows):
         """
-        A process routine that detects positives in a given list of windows and stores the result in self.positive_rois
-
         :type img: ndarray
         :type windows: list
         :param img: Source image. Ideally a view instead of a copy.
@@ -67,6 +68,9 @@ class SlidingWindowDetector:
             return resized_image
 
     def detect(self, img, container_rect):
+        img, r = self.length_resize(img, self.img_size)
+        container_rect = tuple([int(round(i*r)) for i in container_rect])
+
         w, h = img.shape[1], img.shape[0]
         windows = self.get_windows(w, h, container_rect=container_rect)
 
@@ -81,15 +85,21 @@ class SlidingWindowDetector:
         return list(itertools.chain.from_iterable(positives))
 
     @staticmethod
-    def max_length_resize(img, max_length):
+    def length_resize(img, l):
+        """
+        Return (r_img, r) where r_img is a resized image such that the length of the
+        longer side is equal to l, and the resize factor r is a number such that
+        img_size * r = r_img_size.
+        """
         imw, imh = img.shape[1], img.shape[0]
-        if max(imw, imh) > max_length:
-            if imw > imh:
-                dst_size = (max_length, max_length * imh / imw)
-            else:
-                dst_size = (max_length * imw / imh, max_length)
-            img = cv2.resize(img, dst_size)
-        return img
+        if imw > imh:
+            dst_size = (l, int(round(l * float(imh) / imw)))
+            r = int(round(float(l)/imw))
+        else:
+            dst_size = (int(l * float(imw) / imh), l)
+            r = int(round(float(l)/imh))
+        r_img = cv2.resize(img, dst_size)
+        return r_img, r
 
     def get_windows(self, im_w, im_h, skip=2, container_rect=None, include_size=None):
         """
