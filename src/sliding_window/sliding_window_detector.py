@@ -201,4 +201,3 @@ class SlidingWindowDetector:
         :return: t / r ^ levels for r < 1
         """
         return tuple([int(round(item / (self.resize_factor ** level))) for item in t])
-
