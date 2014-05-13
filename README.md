@@ -51,7 +51,7 @@ annotated them like the figure below. After marking 239 images, I was able to co
 
 Although the annotations include multiple categories, the detector was only trianed to detect logos and illustrations combined into one category.
 If you're interested in detecting
-text, OpenCV has a (scene text detection)[http://docs.opencv.org/trunk/modules/objdetect/doc/erfilter.html] implementation that works surprisingly well.
+text, OpenCV has a [scene text detection](http://docs.opencv.org/trunk/modules/objdetect/doc/erfilter.html) implementation that works surprisingly well.
 At the time of writing, this is only available in the development version, so you'll have to clone the latest OpenCV code from GitHub and compile
 from source.
 
