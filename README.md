@@ -18,7 +18,7 @@ Given a region of interest (blue square in the figure), the code computes invers
 its immediate surroundings - two levels (yellow and green boundaries) in this example - and the entire image to measure the object-like quality.
 
 Combined with the Histogram of Oriented Gradients and normalized size and location features, we can train multi-step classifiers to
-detect eye-catching parts of an image. See [this file](https://bitbucket.org/daeyun/cs543project/src/1541bd45ffab6613f8a9aa5ca314756e845ceffa/src/feature_extractor/hog_obj_feature_extractor.py) or [this file](https://bitbucket.org/daeyun/cs543project/src/1541bd45ffab6613f8a9aa5ca314756e845ceffa/src/sliding_window/sliding_window_detector.py) for implementation.
+detect eye-catching parts of an image. See [this file](https://github.com/daeyun/cs543project/blob/master/src/feature_extractor/hog_obj_feature_extractor.py) or [this file](https://github.com/daeyun/cs543project/blob/master/src/sliding_window/sliding_window_detector.py) for implementation.
 
 The first classifier (SVM trained for high-recall and low precision) is a bit messy.
 
