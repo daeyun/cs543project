@@ -5,6 +5,7 @@ install_requires = [
     'numpy',
     'matplotlib',
     'scikit-image',
+    'scikit-learn',
 ]
 
 setup(

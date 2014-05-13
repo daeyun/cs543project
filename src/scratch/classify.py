@@ -66,7 +66,7 @@ detector = SlidingWindow(feature_extractor, classifier, win_size=90, img_size=80
 image_manager = ImageManager('./img')
 
 # raises exception if annotation does not exist for this image
-image, rect_sets = image_manager.load_annotated_image('./img/DSCF0918.JPG')
+image, rect_sets = image_manager.load_annotated_image('./img/DSCF0878.JPG')
 
 
 
