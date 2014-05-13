@@ -1,6 +1,7 @@
 import json
 import cv2
 from sklearn.externals import joblib
+import time
 from feature_extractor.hog_obj_feature_extractor import HogObjFeatureExtractor
 from helpers.config_helpers import parse_annotations
 from helpers.feature_extraction_helpers import get_intersecting_rect
@@ -55,17 +56,54 @@ __author__ = 'Daeyun Shin'
 #             print 'border rectangle must exist.'
 #             continue
 
-classifier = joblib.load('./classifiers/svm.clf')
+classifier = joblib.load('../classifiers/svm-50-100.clf')
+classifier2 = joblib.load('../classifiers/svm-300-2000.clf')
 feature_extractor = HogObjFeatureExtractor()
 
-detector = SlidingWindow(feature_extractor, classifier, win_size=90, img_size=900, resize_factor=0.9)
+detector = SlidingWindow(feature_extractor, classifier, win_size=90, img_size=800, resize_factor=0.94)
 
 # load all annotation files in the given directory
 image_manager = ImageManager('./img')
 
 # raises exception if annotation does not exist for this image
-image, rect_sets = image_manager.load_annotated_image('./img/DSCF0876.JPG')
+image, rect_sets = image_manager.load_annotated_image('./img/DSCF0918.JPG')
 
 
 
-print detector.extract_features(image, rect_sets)
+# print detector.extract_features(image, rect_sets)
+
+print rect_sets
+for rect_set in rect_sets:
+    container_rect, label_rects = rect_set
+    print container_rect
+    print label_rects
+
+    t = time.time()
+    positives = detector.detect(image, container_rect)
+    print time.time() - t
+    print len(positives)
+    plot_rects_on_image(image, [container_rect]+positives, ['red', 'green'], thickness=1)
+    print positives
+    detector.set_classifier(classifier2)
+    t = time.time()
+    positives = detector.detect(image, container_rect, windows=positives)
+    print positives
+    print time.time() - t
+    t = time.time()
+    print len(positives)
+
+    plot_rects_on_image(image, [container_rect]+positives, ['red', 'green'], thickness=2)
+
+    positives = cv2.groupRectangles(positives, 1)
+    np = []
+    for p in positives[0]:
+        print '1',p
+        x, y, w, h = p
+        np.append((x, y, w, h))
+    positives = np
+    print positives
+
+
+    plot_rects_on_image(image, [container_rect]+list(positives), ['red', 'green'], thickness=2)
+
+    exit()

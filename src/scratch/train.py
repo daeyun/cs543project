@@ -22,35 +22,35 @@ def training(training_data_dir, num_instances=None, instance_id=None):
     X = None
     Y = None
 
-    #for path in paths:
-        #data = num.genfromtxt(path, delimiter=',')
+    for path in paths:
+        data = num.genfromtxt(path, delimiter=',')
 
-        #if data.ndim == 1:
-            #data = num.array([data])
+        if data.ndim == 1:
+            data = num.array([data])
 
-        #x = data[:, 1:].astype(num.float32)
-        #y = data[:, 0].astype(num.float32)
-        #y.resize((y.shape[0], 1))
+        x = data[:, 1:].astype(num.float32)
+        y = data[:, 0].astype(num.float32)
+        y.resize((y.shape[0], 1))
 
-        #if y[0,0]==0:
-            #n = x.shape[0]
-            #p = num.random.permutation(n)
-            #x=x[p[:n/15], :]
-            #y=y[p[:n/15], :]
+        if y[0,0]==0:
+            n = x.shape[0]
+            p = num.random.permutation(n)
+            x=x[p[:n/15], :]
+            y=y[p[:n/15], :]
 
-        #if X == None or Y == None:
-            #X = x
-            #Y = y
-        #else:
-            #X = num.vstack((X, x))
-            #Y = num.vstack((Y, y))
-        #print 'loaded {}'.format(path)
-    #num.savetxt('training_data_X.txt', X, fmt="%12.10G")
-    #num.savetxt('training_data_Y.txt', Y, fmt="%12.10G")
-
-    X = num.genfromtxt('training_data_X.txt', unpack=True)
-    Y = num.genfromtxt('training_data_Y.txt', unpack=True)
-    X = num.transpose(X)
+        if X == None or Y == None:
+            X = x
+            Y = y
+        else:
+            X = num.vstack((X, x))
+            Y = num.vstack((Y, y))
+        print 'loaded {}'.format(path)
+    # num.savetxt('training_data_X.txt', X, fmt="%12.10G")
+    # num.savetxt('training_data_Y.txt', Y, fmt="%12.10G")
+    #
+    # X = num.genfromtxt('training_data_X.txt', unpack=True)
+    # Y = num.genfromtxt('training_data_Y.txt', unpack=True)
+    # X = num.transpose(X)
     #Y.resize((Y.shape[0], 1))
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.5, random_state=89)

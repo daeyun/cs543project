@@ -95,6 +95,6 @@ class ImageManager:
                 label_rect_set.append(rect)
             label_rect_sets.append((container_rect, label_rect_set))
 
-        return_value = image, label_rect_sets
+        return_value = rotated_image, label_rect_sets
         self.cache[path] = return_value
         return return_value

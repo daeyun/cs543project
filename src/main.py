@@ -85,9 +85,13 @@ def main():
         feature_extractor.load_images_and_save_features(source_img_dir, out_dir)
         print 'Done'
 
-    elif args.task == 'train':
+    elif args.task == 'train-distributed':
         training_data_dir = config['paths']['input']['training']
         training(training_data_dir, instance_id=instance_id, num_instances=num_instances)
+
+    elif args.task == 'train':
+        training_data_dir = config['paths']['input']['training']
+        training(training_data_dir)
 
 if __name__ == '__main__':
     main()

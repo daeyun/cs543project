@@ -39,7 +39,10 @@ class SlidingWindow:
         self.img_size = img_size
         self.n_processes = n_processes
 
-    def __detector(self, img, container_rect, windows):
+    def set_classifier(self, clf):
+        self.classifier = clf
+
+    def __detector(self, img, container_rect, windows, upscale_factor):
         """
         :type img: ndarray
         :type container_rect: tuple
@@ -52,7 +55,7 @@ class SlidingWindow:
         :param windows: List of ((x, y), resize level)
         :return: List of (x, y, w, h)
         """
-        # count = 0
+        count = 0
         print len(windows), ' windows'
         positives = []
         for window in windows:
@@ -74,7 +77,9 @@ class SlidingWindow:
             features = self.feature_extractor.compute_features(pyr_image, rect, new_container_rect)
             prediction = self.classifier.predict(features)
             if abs(1 - prediction) < 0.1:
-                positives.append(self.upscale_int_tuple(rect, level))
+                rct = self.upscale_int_tuple(rect, level)
+                positives.append(tuple([int(round(i / upscale_factor)) for i in rct]))
+
         return positives
 
     def extract_features(self, img, rect_sets):
@@ -209,7 +214,7 @@ class SlidingWindow:
         colors.append('yellow')
         plot_rects_on_image(img, rects, colors)
 
-    def detect(self, img, container_rect):
+    def detect(self, img, container_rect, windows=None):
         """
         :type img: ndarray
         :type container_rect: tuple[int]
@@ -225,21 +230,27 @@ class SlidingWindow:
         w, h = img.shape[1], img.shape[0]
         windows = self.get_windows(w, h, container_rect=container_rect)
 
-        return self.__detector(img, container_rect, windows)
 
-        # split_windows = chunks(windows, self.n_processes)
-        #
-        # processes = []
-        # for i in range(self.n_processes):
-        #     p = Process(target=self.__detector_process, args=(img, container_rect, split_windows[i]))
-        #     processes.append(p)
-        #     p.start()
-        #
-        # for p in processes:
-        #     p.join()
-        #
-        # # TODO: join and return
-        # return
+        positives = self.__detector(img, container_rect, windows, r)
+
+        return positives
+
+    def detect_secondary(self, img, container_rect, windows):
+        positives = []
+
+        img, r = self.length_resize(img, self.img_size)
+        container_rect = tuple([int(round(i * r)) for i in container_rect])
+
+        for window in windows:
+            rect = tuple([int(round(i * r)) for i in window])
+
+            features = self.feature_extractor.compute_features(img, rect, container_rect)
+            prediction = self.classifier.predict(features)
+            if abs(1 - prediction) < 0.1:
+                positives.append(window)
+
+        return positives
+
 
     def get_pyramid_image(self, img, level):
         """
